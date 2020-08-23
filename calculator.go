@@ -8,6 +8,7 @@ import (
 	"math"
 	"os"
 	"path"
+	// "path/filepath"
 	"regexp"
 	"sort"
 	"strconv"
@@ -596,6 +597,25 @@ func filenameContains2v2(filenameWithExt string) bool {
 }
 
 
+// Gets slice of all filenames from data source
+func getListOfDataFilenames() []string {
+    f, err := os.Open(pathDataFolder)
+    if err != nil {
+        log.Fatal(err)
+    }
+    files, err := f.Readdir(-1)
+    f.Close()
+    if err != nil {
+        log.Fatal(err)
+	}
+	filenamesDesired := []string{}
+    for _, file := range files {
+		filenamesDesired = append(filenamesDesired, file.Name())
+	}
+	return filenamesDesired
+}
+
+
 // Executes ETL pipeline for a raw data file, and stores results appropriately
 func executePipeline(filename string) {
 	filenameWithoutExt := removeExtension(filename)
@@ -628,7 +648,7 @@ func executePipeline(filename string) {
 
 
 func main() {
-	filenames := []string{"FIFA19-2v2.csv", "Bundesliga - 2012-13.csv", "EPL - 2011-12.csv"}
+	filenames := getListOfDataFilenames()
 	for _, filename := range filenames {
 		executePipeline(filename)
 	}
