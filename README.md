@@ -6,3 +6,7 @@ Stat calculator in Golang
 - Install dependencies with `go get github.com/fatih/structs`
 - Run the code with `go run calculator.go`
 - View results in the `results` folder
+
+## Naming conventions
+- Filenames with 2v2 data i.e; `data/FIFA19-2v2.csv` must contain the string "2v2" in their filename (not case sensitive).
+- The naming format for 2v2 teams must be the same as shown in the mentioned file i.e; unique-name of both individuals (one after the other) with first letter of each individual's unique-name capitalized.
