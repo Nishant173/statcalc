@@ -7,11 +7,20 @@ import (
 	"log"
 	"math"
 	"os"
+	"path"
 	"regexp"
 	"sort"
 	"strconv"
+	"strings"
 
 	"github.com/fatih/structs"
+)
+
+
+// Paths to data (source) and results (destination) folders
+const (
+	pathDataFolder = "data"
+	pathResultsFolder = "results"
 )
 
 
@@ -576,32 +585,52 @@ func saveAbsToCsv(sliceData []StatsAbs, filepath string) {
 }
 
 
-func main() {
-	pathRawData := "data/FIFA19-2v2.csv"
+func removeExtension(filenameWithExt string) string {
+	return strings.TrimSuffix(filenameWithExt, path.Ext(filenameWithExt))
+}
+
+
+func filenameContains2v2(filenameWithExt string) bool {
+	filenameWithExtLowerCased := strings.ToLower(filenameWithExt)
+	return strings.Contains(filenameWithExtLowerCased, "2v2")
+}
+
+
+// Executes ETL pipeline for a raw data file, and stores results appropriately
+func executePipeline(filename string) {
+	filenameWithoutExt := removeExtension(filename)
+	pathRawData := pathDataFolder + "/" + filename
 	rawRecords := readRawRecordsFromCsv(pathRawData)
 
 	// Teams stats
 	sliceAbsStats := getAbsoluteStats(rawRecords)
 	sliceNormStats := getNormalizedStats(sliceAbsStats)
-
 	sliceAbsStats = sortAbsoluteStats(sliceAbsStats)
 	sliceAbsStats = rankAbsoluteStats(sliceAbsStats)
 	sliceNormStats = sortNormalizedStats(sliceNormStats)
 	sliceNormStats = rankNormalizedStats(sliceNormStats)
+	saveAbsToCsv(sliceAbsStats, pathResultsFolder + "/" + filenameWithoutExt + " - Teams - Absolute Stats.csv")
+	saveNormToCsv(sliceNormStats, pathResultsFolder +  "/" + filenameWithoutExt + " - Teams - Normalized Stats.csv")
 	
 	// Individuals' stats
-	sliceAbsStatsSolo := getAbsoluteStatsByIndividual(rawRecords, sliceAbsStats)
-	sliceNormStatsSolo := getNormalizedStats(sliceAbsStatsSolo)
+	if filenameContains2v2(filename) {
+		sliceAbsStatsSolo := getAbsoluteStatsByIndividual(rawRecords, sliceAbsStats)
+		sliceNormStatsSolo := getNormalizedStats(sliceAbsStatsSolo)
+		sliceAbsStatsSolo = sortAbsoluteStats(sliceAbsStatsSolo)
+		sliceAbsStatsSolo = rankAbsoluteStats(sliceAbsStatsSolo)
+		sliceNormStatsSolo = sortNormalizedStats(sliceNormStatsSolo)
+		sliceNormStatsSolo = rankNormalizedStats(sliceNormStatsSolo)
+		saveAbsToCsv(sliceAbsStatsSolo, pathResultsFolder +  "/" + filenameWithoutExt + " - Individuals - Absolute Stats.csv")
+		saveNormToCsv(sliceNormStatsSolo, pathResultsFolder +  "/" + filenameWithoutExt + " - Individuals - Normalized Stats.csv")
+	}
+	fmt.Println("Computed stats for " + filename)
+}
 
-	sliceAbsStatsSolo = sortAbsoluteStats(sliceAbsStatsSolo)
-	sliceAbsStatsSolo = rankAbsoluteStats(sliceAbsStatsSolo)
-	sliceNormStatsSolo = sortNormalizedStats(sliceNormStatsSolo)
-	sliceNormStatsSolo = rankNormalizedStats(sliceNormStatsSolo)
 
-	// Store results
-	saveAbsToCsv(sliceAbsStats, "results/Teams - Absolute Stats.csv")
-	saveNormToCsv(sliceNormStats, "results/Teams - Normalized Stats.csv")
-	saveAbsToCsv(sliceAbsStatsSolo, "results/Individuals - Absolute Stats.csv")
-	saveNormToCsv(sliceNormStatsSolo, "results/Individuals - Normalized Stats.csv")
-	fmt.Println("Done!")
+func main() {
+	filenames := []string{"FIFA19-2v2.csv", "Bundesliga - 2012-13.csv", "EPL - 2011-12.csv"}
+	for _, filename := range filenames {
+		executePipeline(filename)
+	}
+	fmt.Println("\nDone!")
 }

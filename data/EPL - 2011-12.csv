@@ -1,0 +1,381 @@
+HomeTeam,HG,AG,AwayTeam
+Newcastle,0,0,Arsenal
+Blackburn,1,2,Wolves
+Fulham,0,0,Aston Villa
+Liverpool,1,1,Sunderland
+Wigan,1,1,Norwich
+QPR,0,4,Bolton
+Stoke,0,0,Chelsea
+West Brom,1,2,Man United
+Man City,4,0,Swansea
+Arsenal,0,2,Liverpool
+Aston Villa,3,1,Blackburn
+Chelsea,2,1,West Brom
+Everton,0,1,QPR
+Sunderland,0,1,Newcastle
+Swansea,0,0,Wigan
+Bolton,2,3,Man City
+Norwich,1,1,Stoke
+Wolves,2,0,Fulham
+Man United,3,0,Tottenham
+Swansea,0,0,Sunderland
+Liverpool,3,1,Bolton
+Chelsea,3,1,Norwich
+Wigan,2,0,QPR
+Aston Villa,0,0,Wolves
+Blackburn,0,1,Everton
+West Brom,0,1,Stoke
+Tottenham,1,5,Man City
+Man United,8,2,Arsenal
+Newcastle,2,1,Fulham
+Wolves,0,2,Tottenham
+Arsenal,1,0,Swansea
+Bolton,0,5,Man United
+Everton,2,2,Aston Villa
+Man City,3,0,Wigan
+Stoke,1,0,Liverpool
+Sunderland,1,2,Chelsea
+Fulham,1,1,Blackburn
+Norwich,0,1,West Brom
+QPR,0,0,Newcastle
+Bolton,1,2,Norwich
+Blackburn,4,3,Arsenal
+Wolves,0,3,QPR
+Everton,3,1,Wigan
+Aston Villa,1,1,Newcastle
+Swansea,3,0,West Brom
+Tottenham,4,0,Liverpool
+Sunderland,4,0,Stoke
+Man United,3,1,Chelsea
+Fulham,2,2,Man City
+West Brom,0,0,Fulham
+Stoke,1,1,Man United
+Newcastle,3,1,Blackburn
+Man City,2,0,Everton
+Wigan,1,2,Tottenham
+Chelsea,4,1,Swansea
+Arsenal,3,0,Bolton
+Liverpool,2,1,Wolves
+QPR,1,1,Aston Villa
+Norwich,2,1,Sunderland
+Wolves,1,2,Newcastle
+Aston Villa,2,0,Wigan
+Blackburn,0,4,Man City
+Everton,0,2,Liverpool
+Man United,2,0,Norwich
+Sunderland,2,2,West Brom
+Tottenham,2,1,Arsenal
+Fulham,6,0,QPR
+Swansea,2,0,Stoke
+Bolton,1,5,Chelsea
+Wigan,1,3,Bolton
+Chelsea,3,1,Everton
+Liverpool,1,1,Man United
+Man City,4,1,Aston Villa
+Norwich,3,1,Swansea
+QPR,1,1,Blackburn
+Stoke,2,0,Fulham
+West Brom,2,0,Wolves
+Newcastle,2,2,Tottenham
+Arsenal,2,1,Sunderland
+Wolves,2,2,Swansea
+Aston Villa,1,2,West Brom
+Bolton,0,2,Sunderland
+Liverpool,1,1,Norwich
+Newcastle,1,0,Wigan
+Fulham,1,3,Everton
+Blackburn,1,2,Tottenham
+Man United,1,6,Man City
+Arsenal,3,1,Stoke
+QPR,1,0,Chelsea
+Wigan,0,2,Fulham
+West Brom,0,2,Liverpool
+Swansea,3,1,Bolton
+Norwich,3,3,Blackburn
+Sunderland,2,2,Aston Villa
+Everton,0,1,Man United
+Man City,3,1,Wolves
+Chelsea,3,5,Arsenal
+Tottenham,3,1,QPR
+Stoke,1,3,Newcastle
+Liverpool,0,0,Swansea
+Arsenal,3,0,West Brom
+Aston Villa,3,2,Norwich
+Blackburn,0,1,Chelsea
+Man United,1,0,Sunderland
+Newcastle,2,1,Everton
+QPR,2,3,Man City
+Bolton,5,0,Stoke
+Fulham,1,3,Tottenham
+Wolves,3,1,Wigan
+Wigan,3,3,Blackburn
+Swansea,0,1,Man United
+West Brom,2,1,Bolton
+Sunderland,0,0,Fulham
+Norwich,1,2,Arsenal
+Man City,3,1,Newcastle
+Everton,2,1,Wolves
+Stoke,2,3,QPR
+Chelsea,1,2,Liverpool
+Tottenham,2,0,Aston Villa
+Chelsea,3,0,Wolves
+Arsenal,1,1,Fulham
+Bolton,0,2,Everton
+Man United,1,1,Newcastle
+Norwich,2,1,QPR
+Stoke,3,1,Blackburn
+Sunderland,1,2,Wigan
+West Brom,1,3,Tottenham
+Swansea,0,0,Aston Villa
+Liverpool,1,1,Man City
+Newcastle,0,3,Chelsea
+QPR,1,1,West Brom
+Man City,5,1,Norwich
+Wigan,0,4,Arsenal
+Aston Villa,0,1,Man United
+Tottenham,3,0,Bolton
+Blackburn,4,2,Swansea
+Everton,0,1,Stoke
+Wolves,2,1,Sunderland
+Fulham,1,0,Liverpool
+West Brom,1,2,Wigan
+Arsenal,1,0,Everton
+Bolton,1,2,Aston Villa
+Liverpool,1,0,QPR
+Man United,4,1,Wolves
+Norwich,4,2,Newcastle
+Swansea,2,0,Fulham
+Sunderland,2,1,Blackburn
+Stoke,2,1,Tottenham
+Chelsea,2,1,Man City
+Newcastle,0,0,Swansea
+Blackburn,1,2,West Brom
+Everton,1,1,Norwich
+Fulham,2,0,Bolton
+Wolves,1,2,Stoke
+Wigan,1,1,Chelsea
+QPR,0,2,Man United
+Tottenham,1,0,Sunderland
+Man City,1,0,Arsenal
+Aston Villa,0,2,Liverpool
+Blackburn,1,2,Bolton
+Wolves,2,2,Norwich
+QPR,2,3,Sunderland
+Aston Villa,1,2,Arsenal
+Everton,1,0,Swansea
+Fulham,0,5,Man United
+Man City,3,0,Stoke
+Newcastle,2,3,West Brom
+Wigan,0,0,Liverpool
+Tottenham,1,1,Chelsea
+Stoke,0,0,Aston Villa
+Man United,5,0,Wigan
+Liverpool,1,1,Blackburn
+West Brom,0,0,Man City
+Bolton,0,2,Newcastle
+Sunderland,1,1,Everton
+Chelsea,1,1,Fulham
+Arsenal,1,1,Wolves
+Swansea,1,1,QPR
+Norwich,0,2,Tottenham
+Liverpool,3,1,Newcastle
+Norwich,1,1,Fulham
+Stoke,2,2,Wigan
+Chelsea,1,3,Aston Villa
+Man United,2,3,Blackburn
+Arsenal,1,0,QPR
+Swansea,1,1,Tottenham
+Bolton,1,1,Wolves
+Sunderland,1,0,Man City
+West Brom,0,1,Everton
+Aston Villa,0,2,Swansea
+Fulham,2,1,Arsenal
+QPR,1,2,Norwich
+Wolves,1,2,Chelsea
+Blackburn,1,2,Stoke
+Man City,3,0,Liverpool
+Tottenham,1,0,West Brom
+Wigan,1,4,Sunderland
+Newcastle,3,0,Man United
+Everton,1,2,Bolton
+Tottenham,2,0,Everton
+Aston Villa,1,1,Everton
+Blackburn,3,1,Fulham
+Chelsea,1,0,Sunderland
+Liverpool,0,0,Stoke
+Man United,3,0,Bolton
+Tottenham,1,1,Wolves
+West Brom,1,2,Norwich
+Swansea,3,2,Arsenal
+Newcastle,1,0,QPR
+Wigan,0,1,Man City
+Bolton,3,1,Liverpool
+Everton,1,1,Blackburn
+Fulham,5,2,Newcastle
+Norwich,0,0,Chelsea
+QPR,3,1,Wigan
+Stoke,1,2,West Brom
+Sunderland,2,0,Swansea
+Wolves,2,3,Aston Villa
+Arsenal,1,2,Man United
+Man City,3,2,Tottenham
+Wolves,0,3,Liverpool
+Tottenham,3,1,Wigan
+Swansea,1,1,Chelsea
+Everton,1,0,Man City
+Man United,2,0,Stoke
+Sunderland,3,0,Norwich
+Bolton,0,0,Arsenal
+Aston Villa,2,2,QPR
+Blackburn,0,2,Newcastle
+Fulham,1,1,West Brom
+West Brom,1,2,Swansea
+Wigan,1,1,Everton
+Stoke,0,1,Sunderland
+QPR,1,2,Wolves
+Norwich,2,0,Bolton
+Man City,3,0,Fulham
+Arsenal,7,1,Blackburn
+Chelsea,3,3,Man United
+Newcastle,2,1,Aston Villa
+Liverpool,0,0,Tottenham
+Tottenham,5,0,Newcastle
+Swansea,2,3,Norwich
+Sunderland,1,2,Arsenal
+Fulham,2,1,Stoke
+Man United,2,1,Liverpool
+Bolton,1,2,Wigan
+Blackburn,3,2,QPR
+Everton,2,0,Chelsea
+Aston Villa,0,1,Man City
+Wolves,1,5,West Brom
+Wigan,0,0,Aston Villa
+Chelsea,3,0,Bolton
+Man City,3,0,Blackburn
+Newcastle,2,2,Wolves
+QPR,0,1,Fulham
+West Brom,4,0,Sunderland
+Stoke,2,0,Swansea
+Norwich,1,2,Man United
+Arsenal,5,2,Tottenham
+Blackburn,1,1,Aston Villa
+Liverpool,1,2,Arsenal
+Man City,2,0,Bolton
+QPR,1,1,Everton
+Stoke,1,0,Norwich
+West Brom,1,0,Chelsea
+Wigan,0,2,Swansea
+Newcastle,1,1,Sunderland
+Fulham,5,0,Wolves
+Tottenham,1,3,Man United
+Wolves,0,2,Blackburn
+Aston Villa,1,0,Fulham
+Bolton,2,1,QPR
+Chelsea,1,0,Stoke
+Everton,1,0,Tottenham
+Sunderland,1,0,Liverpool
+Swansea,1,0,Man City
+Man United,2,0,West Brom
+Norwich,1,1,Wigan
+Arsenal,2,1,Newcastle
+Liverpool,3,0,Everton
+Wigan,1,1,West Brom
+Fulham,0,3,Swansea
+Newcastle,1,0,Norwich
+Wolves,0,5,Man United
+Blackburn,2,0,Sunderland
+Everton,0,1,Arsenal
+Man City,2,1,Chelsea
+QPR,3,2,Liverpool
+Tottenham,1,1,Stoke
+Bolton,2,1,Blackburn
+Sunderland,3,1,QPR
+Stoke,1,1,Man City
+Norwich,2,1,Wolves
+Arsenal,3,0,Aston Villa
+Chelsea,0,0,Tottenham
+Swansea,0,2,Everton
+Liverpool,1,2,Wigan
+West Brom,1,3,Newcastle
+Man United,1,0,Fulham
+QPR,2,1,Arsenal
+Wolves,2,3,Bolton
+Wigan,2,0,Stoke
+Man City,3,3,Sunderland
+Everton,2,0,West Brom
+Aston Villa,2,4,Chelsea
+Fulham,2,1,Norwich
+Newcastle,2,0,Liverpool
+Tottenham,3,1,Swansea
+Blackburn,0,2,Man United
+Swansea,0,2,Newcastle
+Liverpool,1,1,Aston Villa
+West Brom,3,0,Blackburn
+Sunderland,0,0,Tottenham
+Stoke,2,1,Wolves
+Bolton,0,3,Fulham
+Chelsea,2,1,Wigan
+Norwich,2,2,Everton
+Man United,2,0,QPR
+Arsenal,1,0,Man City
+Fulham,1,1,Chelsea
+Everton,4,0,Sunderland
+Newcastle,2,0,Bolton
+Aston Villa,1,1,Stoke
+Tottenham,1,2,Norwich
+Blackburn,2,3,Liverpool
+Wigan,1,0,Man United
+Wolves,0,3,Arsenal
+Man City,4,0,West Brom
+QPR,3,0,Swansea
+Norwich,1,6,Man City
+Sunderland,0,0,Wolves
+Swansea,3,0,Blackburn
+West Brom,1,0,QPR
+Man United,4,0,Aston Villa
+Arsenal,1,2,Wigan
+QPR,1,0,Tottenham
+Newcastle,3,0,Stoke
+Fulham,2,1,Wigan
+Bolton,1,1,Swansea
+Blackburn,2,0,Norwich
+Aston Villa,0,0,Sunderland
+Arsenal,0,0,Chelsea
+Liverpool,0,1,West Brom
+Man United,4,4,Everton
+Wolves,0,2,Man City
+Aston Villa,1,2,Bolton
+Wigan,4,0,Newcastle
+West Brom,0,0,Aston Villa
+Swansea,4,4,Wolves
+Stoke,1,1,Arsenal
+Norwich,0,3,Liverpool
+Everton,4,0,Fulham
+Sunderland,2,2,Bolton
+Chelsea,6,1,QPR
+Tottenham,2,0,Blackburn
+Man City,1,0,Man United
+Liverpool,0,1,Fulham
+Stoke,1,1,Everton
+Bolton,1,4,Tottenham
+Chelsea,0,2,Newcastle
+Arsenal,3,3,Norwich
+Newcastle,0,2,Man City
+Man United,2,0,Swansea
+Fulham,2,1,Sunderland
+QPR,1,0,Stoke
+Aston Villa,1,1,Tottenham
+Bolton,2,2,West Brom
+Wolves,0,0,Everton
+Blackburn,0,1,Wigan
+Liverpool,4,1,Chelsea
+Norwich,2,0,Aston Villa
+Swansea,1,0,Liverpool
+Tottenham,2,0,Fulham
+West Brom,2,3,Arsenal
+Sunderland,0,1,Man United
+Man City,3,2,QPR
+Stoke,2,2,Bolton
+Chelsea,2,1,Blackburn
+Everton,3,1,Newcastle
+Wigan,3,2,Wolves
