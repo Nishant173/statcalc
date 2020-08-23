@@ -187,6 +187,20 @@ func (obj StatsAbs) ListStringifiedValues() []string {
 }
 
 
+/*
+Method that gets slice of stringified elements of `LatestForm` struct (by record).
+Used as helper function in storing data of `LatestForm` struct to CSV file.
+*/
+func (obj LatestForm) ListStringifiedValues() []string {
+	var values []string
+	values = append(values, strconv.Itoa(obj.Rank))
+	values = append(values, obj.Team)
+	values = append(values, fmt.Sprintf("%g", obj.LatestPPG))
+	values = append(values, strconv.Itoa(obj.LatestGamesConsidered))
+	return values
+}
+
+
 func integerify(num float64) int {
     return int(num + math.Copysign(0.5, num))
 }
@@ -422,6 +436,15 @@ func sortAbsoluteStats(sliceAbsoluteStats []StatsAbs) []StatsAbs {
 }
 
 
+// Sorts latest form based on certain metric
+func sortLatestForm(sliceLatestForm []LatestForm) []LatestForm {
+	sort.SliceStable(sliceLatestForm, func(i, j int) bool {
+		return sliceLatestForm[i].LatestPPG > sliceLatestForm[j].LatestPPG
+	})
+	return sliceLatestForm
+}
+
+
 // Generate ranking AFTER slice of `StatsNorm` objects is sorted based on ranking metric/s
 func rankNormalizedStats(sliceNormalizedStats []StatsNorm) []StatsNorm {
 	var sliceNormalizedStatsRanked []StatsNorm
@@ -441,6 +464,17 @@ func rankAbsoluteStats(sliceAbsoluteStats []StatsAbs) []StatsAbs {
 		sliceAbsoluteStatsRanked = append(sliceAbsoluteStatsRanked, tempStats)
 	}
 	return sliceAbsoluteStatsRanked
+}
+
+
+// Generate ranking AFTER slice of `LatestForm` objects is sorted based on ranking metric/s
+func rankLatestForm(sliceLatestForm []LatestForm) []LatestForm {
+	var sliceLatestFormRanked []LatestForm
+	for idx, tempStats := range sliceLatestForm {
+		tempStats.Rank = idx + 1
+		sliceLatestFormRanked = append(sliceLatestFormRanked, tempStats)
+	}
+	return sliceLatestFormRanked
 }
 
 
@@ -585,6 +619,26 @@ func saveAbsToCsv(sliceData []StatsAbs, filepath string) {
 }
 
 
+// Saves slice having objects of `LatestForm` struct to CSV file
+func saveLatestFormToCsv(sliceData []LatestForm, filepath string) {
+    file, err := os.OpenFile(filepath, os.O_CREATE|os.O_WRONLY, 0777)
+	defer file.Close()
+    if err != nil {
+        os.Exit(1)
+	}
+	var strWrite [][]string // Slice of slice of strings, where each sub-slice represents a record
+	statFields := structs.Names(&LatestForm{})
+	strWrite = append(strWrite, statFields)
+	for _, obj := range sliceData {
+		record := obj.ListStringifiedValues()
+		strWrite = append(strWrite, record)
+	}
+    csvWriter := csv.NewWriter(file)
+    csvWriter.WriteAll(strWrite)
+    csvWriter.Flush()
+}
+
+
 func removeExtension(filenameWithExt string) string {
 	return strings.TrimSuffix(filenameWithExt, path.Ext(filenameWithExt))
 }
@@ -592,6 +646,106 @@ func removeExtension(filenameWithExt string) string {
 
 func filenameContains2v2(filenameWithExt string) bool {
 	return strings.Contains(strings.ToLower(filenameWithExt), "2v2")
+}
+
+
+type LatestForm struct {
+	Rank int
+	Team string
+	LatestPPG float64
+	LatestGamesConsidered int
+}
+
+
+func reverseRecordsOrder(records []RawData) []RawData {
+	sliceRecordsReversed := []RawData{}
+	for i := len(records) - 1; i >= 0; i-- {
+		sliceRecordsReversed = append(sliceRecordsReversed, records[i])
+	}
+	return sliceRecordsReversed
+}
+
+
+/*
+Get latest form of team/individual in last `nGames` games. Metric used is PPG (Points per game).
+NOTE: Assumes that the records are sorted in ascending order of time of occurence.
+*/
+func getLatestForm(records []RawData, nGames int) []LatestForm {
+	recordsReversed := reverseRecordsOrder(records)
+	teams := getUniqueTeamNames(records)
+	sliceLatestFormData := []LatestForm{}
+	for _, team := range teams {
+		wins, draws, gamesPlayed := 0, 0, 0
+		for _, obj := range recordsReversed {
+			if team == obj.HomeTeam {
+				if obj.HomeGoals > obj.AwayGoals {
+					wins ++
+				} else if obj.HomeGoals == obj.AwayGoals {
+					draws ++
+				}
+				gamesPlayed ++
+			} else if team == obj.AwayTeam {
+				if obj.AwayGoals > obj.HomeGoals {
+					wins ++
+				} else if obj.HomeGoals == obj.AwayGoals {
+					draws ++
+				}
+				gamesPlayed ++
+			}
+			if gamesPlayed == nGames {
+				break
+			}
+		}
+		latestPPG := float64(3 * wins + draws) / float64(gamesPlayed)
+		tempObj := LatestForm{
+			Rank: 0,
+			Team: team,
+			LatestPPG: round(latestPPG, 4),
+			LatestGamesConsidered: gamesPlayed,
+		}
+		sliceLatestFormData = append(sliceLatestFormData, tempObj)
+	}
+	return sliceLatestFormData
+}
+
+
+func getLatestFormSolo(records []RawData, nGames int) []LatestForm {
+	recordsReversed := reverseRecordsOrder(records)
+	individuals := getUniqueIndividualNames(records)
+	sliceLatestFormData := []LatestForm{}
+	for _, individual := range individuals {
+		wins, draws, gamesPlayed := 0, 0, 0
+		for _, obj := range recordsReversed {
+			homeTeam, awayTeam := obj.HomeTeam, obj.AwayTeam
+			if individualInTeam(individual, homeTeam) {
+				if obj.HomeGoals > obj.AwayGoals {
+					wins ++
+				} else if obj.HomeGoals == obj.AwayGoals {
+					draws ++
+				}
+				gamesPlayed ++
+			} else if individualInTeam(individual, awayTeam) {
+				if obj.AwayGoals > obj.HomeGoals {
+					wins ++
+				} else if obj.HomeGoals == obj.AwayGoals {
+					draws ++
+				}
+				gamesPlayed ++
+			}
+			if gamesPlayed == nGames {
+				break
+			}
+		}
+		latestPPG := float64(3 * wins + draws) / float64(gamesPlayed)
+		tempObj := LatestForm{
+			Rank: 0,
+			Team: individual,
+			LatestPPG: round(latestPPG, 4),
+			LatestGamesConsidered: gamesPlayed,
+		}
+		sliceLatestFormData = append(sliceLatestFormData, tempObj)
+	}
+	return sliceLatestFormData
 }
 
 
@@ -619,6 +773,7 @@ func executePipeline(filename string) {
 	filenameWithoutExt := removeExtension(filename)
 	pathRawData := pathDataFolder + "/" + filename
 	rawRecords := readRawRecordsFromCsv(pathRawData)
+	nLatestGames := 10 // Number of latest games to consider for LatestForm
 
 	// Teams stats
 	sliceAbsStats := getAbsoluteStats(rawRecords)
@@ -627,8 +782,12 @@ func executePipeline(filename string) {
 	sliceAbsStats = rankAbsoluteStats(sliceAbsStats)
 	sliceNormStats = sortNormalizedStats(sliceNormStats)
 	sliceNormStats = rankNormalizedStats(sliceNormStats)
+	sliceLatestForm := getLatestForm(rawRecords, nLatestGames)
+	sliceLatestForm = sortLatestForm(sliceLatestForm)
+	sliceLatestForm = rankLatestForm(sliceLatestForm)
 	saveAbsToCsv(sliceAbsStats, pathResultsFolder + "/" + filenameWithoutExt + " - Teams - Absolute Stats.csv")
 	saveNormToCsv(sliceNormStats, pathResultsFolder +  "/" + filenameWithoutExt + " - Teams - Normalized Stats.csv")
+	saveLatestFormToCsv(sliceLatestForm, pathResultsFolder +  "/" + filenameWithoutExt + " - Teams - Latest Form.csv")
 	
 	// Individuals' stats
 	if filenameContains2v2(filename) {
@@ -638,8 +797,12 @@ func executePipeline(filename string) {
 		sliceAbsStatsSolo = rankAbsoluteStats(sliceAbsStatsSolo)
 		sliceNormStatsSolo = sortNormalizedStats(sliceNormStatsSolo)
 		sliceNormStatsSolo = rankNormalizedStats(sliceNormStatsSolo)
+		sliceLatestFormSolo := getLatestFormSolo(rawRecords, nLatestGames)
+		sliceLatestFormSolo = sortLatestForm(sliceLatestFormSolo)
+		sliceLatestFormSolo = rankLatestForm(sliceLatestFormSolo)
 		saveAbsToCsv(sliceAbsStatsSolo, pathResultsFolder +  "/" + filenameWithoutExt + " - Individuals - Absolute Stats.csv")
 		saveNormToCsv(sliceNormStatsSolo, pathResultsFolder +  "/" + filenameWithoutExt + " - Individuals - Normalized Stats.csv")
+		saveLatestFormToCsv(sliceLatestFormSolo, pathResultsFolder +  "/" + filenameWithoutExt + " - Individuals - Latest Form.csv")
 	}
 	fmt.Println("Computed stats for " + filename)
 }
