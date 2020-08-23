@@ -377,22 +377,22 @@ Returns slice wherein each element of the slice is an object of the struct `Stat
 func getNormalizedStats(sliceAbsStats []StatsAbs) []StatsNorm {
 	hundred := 100.0
 	var sliceNormalizedStats []StatsNorm
-	for _, absStatSlice := range sliceAbsStats {
-		gamesPlayed := float64(absStatSlice.GamesPlayed)
+	for _, obj := range sliceAbsStats {
+		gamesPlayed := float64(obj.GamesPlayed)
 		tempNormalizedStats := StatsNorm{
-			Team: absStatSlice.Team,
-			GamesPlayed: absStatSlice.GamesPlayed,
-			PPG: round(float64(absStatSlice.Points) / gamesPlayed, 4),
-			GDPG: round(float64(absStatSlice.GoalDifference) / gamesPlayed, 3),
-			WinPct: round(float64(absStatSlice.Wins) * hundred / gamesPlayed, 2),
-			LossPct: round(float64(absStatSlice.Losses) * hundred / gamesPlayed, 2),
-			DrawPct: round(float64(absStatSlice.Draws) * hundred / gamesPlayed, 2),
-			GSPG: round(float64(absStatSlice.GoalsScored) / gamesPlayed, 3),
-			GAPG: round(float64(absStatSlice.GoalsAllowed) / gamesPlayed, 3),
-			CsPct: round(float64(absStatSlice.CleanSheets) * hundred / gamesPlayed, 2),
-			CsaPct: round(float64(absStatSlice.CleanSheetsAgainst) * hundred / gamesPlayed, 2),
-			BigWinPct: round(float64(absStatSlice.BigWins) * hundred / gamesPlayed, 2),
-			BigLossPct: round(float64(absStatSlice.BigLosses) * hundred / gamesPlayed, 2),
+			Team: obj.Team,
+			GamesPlayed: obj.GamesPlayed,
+			PPG: round(float64(obj.Points) / gamesPlayed, 4),
+			GDPG: round(float64(obj.GoalDifference) / gamesPlayed, 3),
+			WinPct: round(float64(obj.Wins) * hundred / gamesPlayed, 2),
+			LossPct: round(float64(obj.Losses) * hundred / gamesPlayed, 2),
+			DrawPct: round(float64(obj.Draws) * hundred / gamesPlayed, 2),
+			GSPG: round(float64(obj.GoalsScored) / gamesPlayed, 3),
+			GAPG: round(float64(obj.GoalsAllowed) / gamesPlayed, 3),
+			CsPct: round(float64(obj.CleanSheets) * hundred / gamesPlayed, 2),
+			CsaPct: round(float64(obj.CleanSheetsAgainst) * hundred / gamesPlayed, 2),
+			BigWinPct: round(float64(obj.BigWins) * hundred / gamesPlayed, 2),
+			BigLossPct: round(float64(obj.BigLosses) * hundred / gamesPlayed, 2),
 		}
 		sliceNormalizedStats = append(sliceNormalizedStats, tempNormalizedStats)
 	}
@@ -591,8 +591,7 @@ func removeExtension(filenameWithExt string) string {
 
 
 func filenameContains2v2(filenameWithExt string) bool {
-	filenameWithExtLowerCased := strings.ToLower(filenameWithExt)
-	return strings.Contains(filenameWithExtLowerCased, "2v2")
+	return strings.Contains(strings.ToLower(filenameWithExt), "2v2")
 }
 
 
