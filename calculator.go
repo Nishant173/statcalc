@@ -775,21 +775,23 @@ func executePipeline(filename string) {
 	rawRecords := readRawRecordsFromCsv(pathRawData)
 	nLatestGames := 10 // Number of latest games to consider for LatestForm
 
-	// Teams stats
+	// ########## Teams stats ##########
 	sliceAbsStats := getAbsoluteStats(rawRecords)
 	sliceNormStats := getNormalizedStats(sliceAbsStats)
 	sliceAbsStats = sortAbsoluteStats(sliceAbsStats)
 	sliceAbsStats = rankAbsoluteStats(sliceAbsStats)
 	sliceNormStats = sortNormalizedStats(sliceNormStats)
 	sliceNormStats = rankNormalizedStats(sliceNormStats)
+	// LatestForm
 	sliceLatestForm := getLatestForm(rawRecords, nLatestGames)
 	sliceLatestForm = sortLatestForm(sliceLatestForm)
 	sliceLatestForm = rankLatestForm(sliceLatestForm)
+	// Save results
 	saveAbsToCsv(sliceAbsStats, pathResultsFolder + "/" + filenameWithoutExt + " - Teams - Absolute Stats.csv")
 	saveNormToCsv(sliceNormStats, pathResultsFolder +  "/" + filenameWithoutExt + " - Teams - Normalized Stats.csv")
 	saveLatestFormToCsv(sliceLatestForm, pathResultsFolder +  "/" + filenameWithoutExt + " - Teams - Latest Form.csv")
 	
-	// Individuals' stats
+	// ########## Individuals' stats ##########
 	if filenameContains2v2(filename) {
 		sliceAbsStatsSolo := getAbsoluteStatsByIndividual(rawRecords, sliceAbsStats)
 		sliceNormStatsSolo := getNormalizedStats(sliceAbsStatsSolo)
@@ -797,9 +799,11 @@ func executePipeline(filename string) {
 		sliceAbsStatsSolo = rankAbsoluteStats(sliceAbsStatsSolo)
 		sliceNormStatsSolo = sortNormalizedStats(sliceNormStatsSolo)
 		sliceNormStatsSolo = rankNormalizedStats(sliceNormStatsSolo)
+		// LatestForm
 		sliceLatestFormSolo := getLatestFormSolo(rawRecords, nLatestGames)
 		sliceLatestFormSolo = sortLatestForm(sliceLatestFormSolo)
 		sliceLatestFormSolo = rankLatestForm(sliceLatestFormSolo)
+		// Save results
 		saveAbsToCsv(sliceAbsStatsSolo, pathResultsFolder +  "/" + filenameWithoutExt + " - Individuals - Absolute Stats.csv")
 		saveNormToCsv(sliceNormStatsSolo, pathResultsFolder +  "/" + filenameWithoutExt + " - Individuals - Normalized Stats.csv")
 		saveLatestFormToCsv(sliceLatestFormSolo, pathResultsFolder +  "/" + filenameWithoutExt + " - Individuals - Latest Form.csv")
