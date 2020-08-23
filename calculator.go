@@ -196,7 +196,7 @@ func (obj LatestForm) ListStringifiedValues() []string {
 	values = append(values, strconv.Itoa(obj.Rank))
 	values = append(values, obj.Team)
 	values = append(values, fmt.Sprintf("%g", obj.LatestPPG))
-	values = append(values, strconv.Itoa(obj.LatestGamesConsidered))
+	values = append(values, strconv.Itoa(obj.NumGamesConsidered))
 	return values
 }
 
@@ -653,7 +653,7 @@ type LatestForm struct {
 	Rank int
 	Team string
 	LatestPPG float64
-	LatestGamesConsidered int
+	NumGamesConsidered int
 }
 
 
@@ -701,7 +701,7 @@ func getLatestForm(records []RawData, nGames int) []LatestForm {
 			Rank: 0,
 			Team: team,
 			LatestPPG: round(latestPPG, 4),
-			LatestGamesConsidered: gamesPlayed,
+			NumGamesConsidered: gamesPlayed,
 		}
 		sliceLatestFormData = append(sliceLatestFormData, tempObj)
 	}
@@ -741,7 +741,7 @@ func getLatestFormSolo(records []RawData, nGames int) []LatestForm {
 			Rank: 0,
 			Team: individual,
 			LatestPPG: round(latestPPG, 4),
-			LatestGamesConsidered: gamesPlayed,
+			NumGamesConsidered: gamesPlayed,
 		}
 		sliceLatestFormData = append(sliceLatestFormData, tempObj)
 	}
