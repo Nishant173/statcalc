@@ -3,6 +3,8 @@ package main
 import (
 	"encoding/csv"
 	"fmt"
+	"io"
+	"log"
 	"math"
 	"os"
 	"regexp"
@@ -10,8 +12,84 @@ import (
 	"strconv"
 
 	"github.com/fatih/structs"
-	// "github.com/Nishant173/statcalc"
 )
+
+
+// Get unique team names from slice of records of RawData
+func getUniqueTeamNames(records []RawData) []string {
+	var uniqueTeamNames []string
+	for _, record := range records {
+		homeTeam := record.HomeTeam
+		awayTeam := record.AwayTeam
+		if !stringInSlice(homeTeam, uniqueTeamNames) {
+			uniqueTeamNames = append(uniqueTeamNames, homeTeam)
+		}
+		if !stringInSlice(awayTeam, uniqueTeamNames) {
+			uniqueTeamNames = append(uniqueTeamNames, awayTeam)
+		}
+	}
+	sort.Strings(uniqueTeamNames)
+	return uniqueTeamNames
+}
+
+
+func stringInSlice(str string, slice []string) bool {
+    for _, element := range slice {
+        if element == str {
+            return true
+        }
+    }
+    return false
+}
+
+
+// Struct to store raw data
+type RawData struct {
+	HomeTeam string
+	HomeGoals int
+	AwayGoals int
+	AwayTeam string
+}
+
+
+// Read CSV file having columns "HomeTeam, HomeGoals, AwayGoals, AwayTeam" in that order
+func readRawRecordsFromCsv(filepath string) []RawData {
+	csvfile, err := os.Open(filepath)
+	if err != nil {
+		log.Fatalln("Couldn't open the CSV file", err)
+	}
+	r := csv.NewReader(csvfile)
+	lineCount := 0
+	var records []RawData
+	for {
+		lineCount ++
+		record, err := r.Read()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Fatal(err)
+		}
+		if lineCount != 1 {
+			homeGoals, strConvErrHome := strconv.Atoi(record[1])
+			awayGoals, strConvErrAway := strconv.Atoi(record[2])
+			if strConvErrHome != nil {
+				log.Fatalln("Error while converting HomeGoals to int", strConvErrHome)
+			}
+			if strConvErrAway != nil {
+				log.Fatalln("Error while converting AwayGoals to int", strConvErrAway)
+			}
+			record := RawData{
+				HomeTeam: record[0],
+				HomeGoals: homeGoals,
+				AwayGoals: awayGoals,
+				AwayTeam: record[3],
+			}
+			records = append(records, record)
+		}
+	}
+	return records
+}
 
 
 // Struct to store absolute tabular statistics
@@ -499,7 +577,7 @@ func saveAbsToCsv(sliceData []StatsAbs, filepath string) {
 
 
 func main() {
-	pathRawData := "../data/FIFA19-2v2.csv"
+	pathRawData := "data/FIFA19-2v2.csv"
 	rawRecords := readRawRecordsFromCsv(pathRawData)
 
 	// Teams stats
@@ -521,9 +599,9 @@ func main() {
 	sliceNormStatsSolo = rankNormalizedStats(sliceNormStatsSolo)
 
 	// Store results
-	saveAbsToCsv(sliceAbsStats, "../results/Teams - Absolute Stats.csv")
-	saveNormToCsv(sliceNormStats, "../results/Teams - Normalized Stats.csv")
-	saveAbsToCsv(sliceAbsStatsSolo, "../results/Individuals - Absolute Stats.csv")
-	saveNormToCsv(sliceNormStatsSolo, "../results/Individuals - Normalized Stats.csv")
+	saveAbsToCsv(sliceAbsStats, "results/Teams - Absolute Stats.csv")
+	saveNormToCsv(sliceNormStats, "results/Teams - Normalized Stats.csv")
+	saveAbsToCsv(sliceAbsStatsSolo, "results/Individuals - Absolute Stats.csv")
+	saveNormToCsv(sliceNormStatsSolo, "results/Individuals - Normalized Stats.csv")
 	fmt.Println("Done!")
 }
