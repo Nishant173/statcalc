@@ -551,61 +551,58 @@ func attachRankingToLatestForm(sliceLatestForm []LatestForm) []LatestForm {
 
 
 /*
-Gets slice of absolute stats of individuals from `RawData`, `StatsAbs` of teams.
+[Helper function]
+Extracts individuals' absolute stats from slice of teams' absolute stats.
+Returns slice wherein each element of the slice is an object of the struct `StatsAbs`
+*/
+func extractIndividualStatsFromTeamStats(individual string, sliceTeamAbsStats []StatsAbs) map[string]int {
+	mapStatsByIndividual := map[string]int{}
+	for _, objStat := range sliceTeamAbsStats {
+		if individualInTeam(individual, objStat.Team) {
+			mapStatsByIndividual["GamesPlayed"] += objStat.GamesPlayed
+			mapStatsByIndividual["Points"] += objStat.Points
+			mapStatsByIndividual["GoalDifference"] += objStat.GoalDifference
+			mapStatsByIndividual["Wins"] += objStat.Wins
+			mapStatsByIndividual["Losses"] += objStat.Losses
+			mapStatsByIndividual["Draws"] += objStat.Draws
+			mapStatsByIndividual["GoalsScored"] += objStat.GoalsScored
+			mapStatsByIndividual["GoalsAllowed"] += objStat.GoalsAllowed
+			mapStatsByIndividual["CleanSheets"] += objStat.CleanSheets
+			mapStatsByIndividual["CleanSheetsAgainst"] += objStat.CleanSheetsAgainst
+			mapStatsByIndividual["BigWins"] += objStat.BigWins
+			mapStatsByIndividual["BigLosses"] += objStat.BigLosses
+		}
+	}
+	return mapStatsByIndividual
+}
+
+
+/*
+Gets slice of absolute stats of individuals from `RawData` records, `StatsAbs` of teams.
 Returns slice wherein each element of the slice is an object of the struct `StatsAbs`
 */
 func getAbsoluteStatsByIndividual(records []RawData, sliceAbsoluteStats []StatsAbs) []StatsAbs {
 	individuals := getUniqueIndividualNames(records)
-	var sliceStatsAllIndividuals []StatsAbs // Slice of all individuals' stats
+	var sliceStatsAllIndividuals []StatsAbs
 	for _, individual := range individuals {
-		var sliceStatsByIndividual []StatsAbs // Slice of stats by individual
-		var gamesPlayed int
-		var points int
-		var goalDifference int
-		var wins int
-		var losses int
-		var draws int
-		var goalsScored int
-		var goalsAllowed int
-		var cleanSheets int
-		var cleanSheetsAgainst int
-		var bigWins int
-		var bigLosses int
-		for _, obj := range sliceAbsoluteStats {
-			if individualInTeam(individual, obj.Team) {
-				sliceStatsByIndividual = append(sliceStatsByIndividual, obj)
-				gamesPlayed += obj.GamesPlayed
-				points += obj.Points
-				goalDifference += obj.GoalDifference
-				wins += obj.Wins
-				losses += obj.Losses
-				draws += obj.Draws
-				goalsScored += obj.GoalsScored
-				goalsAllowed += obj.GoalsAllowed
-				cleanSheets += obj.CleanSheets
-				cleanSheetsAgainst += obj.CleanSheetsAgainst
-				bigWins += obj.BigWins
-				bigLosses += obj.BigLosses
-			}
-		}
-		// Construct struct `StatsAbs` by individual
-		tempObj := StatsAbs{
+		mapIndividualStats := extractIndividualStatsFromTeamStats(individual, sliceAbsoluteStats)
+		objStatsByIndividual := StatsAbs{
 			Rank: 0,
 			Team: individual,
-			GamesPlayed: gamesPlayed,
-			Points: points,
-			GoalDifference: goalDifference,
-			Wins: wins,
-			Losses: losses,
-			Draws: draws,
-			GoalsScored: goalsScored,
-			GoalsAllowed: goalsAllowed,
-			CleanSheets: cleanSheets,
-			CleanSheetsAgainst: cleanSheetsAgainst,
-			BigWins: bigWins,
-			BigLosses: bigLosses,
+			GamesPlayed: mapIndividualStats["GamesPlayed"],
+			Points: mapIndividualStats["Points"],
+			GoalDifference: mapIndividualStats["GoalDifference"],
+			Wins: mapIndividualStats["Wins"],
+			Losses: mapIndividualStats["Losses"],
+			Draws: mapIndividualStats["Draws"],
+			GoalsScored: mapIndividualStats["GoalsScored"],
+			GoalsAllowed: mapIndividualStats["GoalsAllowed"],
+			CleanSheets: mapIndividualStats["CleanSheets"],
+			CleanSheetsAgainst: mapIndividualStats["CleanSheetsAgainst"],
+			BigWins: mapIndividualStats["BigWins"],
+			BigLosses: mapIndividualStats["BigLosses"],
 		}
-		sliceStatsAllIndividuals = append(sliceStatsAllIndividuals, tempObj)
+		sliceStatsAllIndividuals = append(sliceStatsAllIndividuals, objStatsByIndividual)
 	}
 	return sliceStatsAllIndividuals
 }
