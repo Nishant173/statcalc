@@ -17,7 +17,7 @@ import (
 )
 
 
-// Paths to data (source) and results (destination) folders
+// Constants - Paths to data (source) and results (destination) folders
 const (
 	pathDataFolder = "data"
 	pathResultsFolder = "results"
@@ -30,6 +30,115 @@ type RawData struct {
 	HomeGoals int
 	AwayGoals int
 	AwayTeam  string
+}
+
+
+// Struct to store absolute tabular statistics
+type StatsAbs struct {
+	Rank int
+	Team string
+	GamesPlayed int
+	Points int
+	GoalDifference int
+	Wins int
+	Losses int
+	Draws int
+	GoalsScored int
+	GoalsAllowed int
+	CleanSheets int
+	CleanSheetsAgainst int
+	BigWins int
+	BigLosses int
+}
+
+
+// Struct to store normalized tabular statistics i.e; StatAbs / GamesPlayed
+type StatsNorm struct {
+	Rank int
+	Team string
+	GamesPlayed int
+	PPG float64
+	GDPG float64
+	WinPct float64
+	LossPct float64
+	DrawPct float64
+	GSPG float64
+	GAPG float64
+	CsPct float64
+	CsaPct float64
+	BigWinPct float64
+	BigLossPct float64
+}
+
+
+// Struct to store latest form (decided by latest PPG)
+type LatestForm struct {
+	Rank int
+	Team string
+	LatestPPG float64
+	NumGamesConsidered int
+}
+
+
+/*
+Method that gets slice of stringified elements of `StatsAbs` struct (by record).
+Used as helper function in storing data of `StatsAbs` struct to CSV file.
+*/
+func (obj StatsAbs) ListStringifiedValues() []string {
+	var values []string
+	values = append(values, strconv.Itoa(obj.Rank))
+	values = append(values, obj.Team)
+	values = append(values, strconv.Itoa(obj.GamesPlayed))
+	values = append(values, strconv.Itoa(obj.Points))
+	values = append(values, strconv.Itoa(obj.GoalDifference))
+	values = append(values, strconv.Itoa(obj.Wins))
+	values = append(values, strconv.Itoa(obj.Losses))
+	values = append(values, strconv.Itoa(obj.Draws))
+	values = append(values, strconv.Itoa(obj.GoalsScored))
+	values = append(values, strconv.Itoa(obj.GoalsAllowed))
+	values = append(values, strconv.Itoa(obj.CleanSheets))
+	values = append(values, strconv.Itoa(obj.CleanSheetsAgainst))
+	values = append(values, strconv.Itoa(obj.BigWins))
+	values = append(values, strconv.Itoa(obj.BigLosses))
+	return values
+}
+
+
+/*
+Method that gets slice of stringified elements of `StatsNorm` struct (by record).
+Used as helper function in storing data of `StatsNorm` struct to CSV file.
+*/
+func (obj StatsNorm) ListStringifiedValues() []string {
+	var values []string
+	values = append(values, strconv.Itoa(obj.Rank))
+	values = append(values, obj.Team)
+	values = append(values, strconv.Itoa(obj.GamesPlayed))
+	values = append(values, fmt.Sprintf("%g", obj.PPG))
+	values = append(values, fmt.Sprintf("%g", obj.GDPG))
+	values = append(values, fmt.Sprintf("%g", obj.WinPct))
+	values = append(values, fmt.Sprintf("%g", obj.LossPct))
+	values = append(values, fmt.Sprintf("%g", obj.DrawPct))
+	values = append(values, fmt.Sprintf("%g", obj.GSPG))
+	values = append(values, fmt.Sprintf("%g", obj.GAPG))
+	values = append(values, fmt.Sprintf("%g", obj.CsPct))
+	values = append(values, fmt.Sprintf("%g", obj.CsaPct))
+	values = append(values, fmt.Sprintf("%g", obj.BigWinPct))
+	values = append(values, fmt.Sprintf("%g", obj.BigLossPct))
+	return values
+}
+
+
+/*
+Method that gets slice of stringified elements of `LatestForm` struct (by record).
+Used as helper function in storing data of `LatestForm` struct to CSV file.
+*/
+func (obj LatestForm) ListStringifiedValues() []string {
+	var values []string
+	values = append(values, strconv.Itoa(obj.Rank))
+	values = append(values, obj.Team)
+	values = append(values, fmt.Sprintf("%g", obj.LatestPPG))
+	values = append(values, strconv.Itoa(obj.NumGamesConsidered))
+	return values
 }
 
 
@@ -73,7 +182,26 @@ func readRawRecordsFromCsv(filepath string) []RawData {
 }
 
 
-// Get unique team names from slice of records of RawData
+func removeExtension(filenameWithExt string) string {
+	return strings.TrimSuffix(filenameWithExt, path.Ext(filenameWithExt))
+}
+
+
+func filenameContains2v2(filenameWithExt string) bool {
+	return strings.Contains(strings.ToLower(filenameWithExt), "2v2")
+}
+
+
+func reverseRecordsOrder(records []RawData) []RawData {
+	sliceRecordsReversed := []RawData{}
+	for i := len(records) - 1; i >= 0; i-- {
+		sliceRecordsReversed = append(sliceRecordsReversed, records[i])
+	}
+	return sliceRecordsReversed
+}
+
+
+// Get unique team names from slice of records of `RawData`
 func getUniqueTeamNames(records []RawData) []string {
 	var uniqueTeamNames []string
 	for _, record := range records {
@@ -91,6 +219,20 @@ func getUniqueTeamNames(records []RawData) []string {
 }
 
 
+// Get unique individual names from slice of records of `RawData`
+func getUniqueIndividualNames(records []RawData) []string {
+	var uniqueIndividualNames []string
+	re := regexp.MustCompile(`[A-Z][^A-Z]*`)
+	uniqueTeams := getUniqueTeamNames(records)
+	for _, team := range uniqueTeams {
+		matchedIndividuals := re.FindAllString(team, -1)
+		uniqueIndividualNames = extendUniqueElements(uniqueIndividualNames, matchedIndividuals)
+	}
+	sort.Strings(uniqueIndividualNames)
+	return uniqueIndividualNames
+}
+
+
 func stringInSlice(str string, slice []string) bool {
     for _, element := range slice {
         if element == str {
@@ -101,103 +243,29 @@ func stringInSlice(str string, slice []string) bool {
 }
 
 
-// Struct to store absolute tabular statistics
-type StatsAbs struct {
-	Rank int
-	Team string
-	GamesPlayed int
-	Points int
-	GoalDifference int
-	Wins int
-	Losses int
-	Draws int
-	GoalsScored int
-	GoalsAllowed int
-	CleanSheets int
-	CleanSheetsAgainst int
-	BigWins int
-	BigLosses int
-}
-
-
-// Struct to store normalized tabular statistics i.e; StatAbs / GamesPlayed
-type StatsNorm struct {
-	Rank int
-	Team string
-	GamesPlayed int
-	PPG float64
-	GDPG float64
-	WinPct float64
-	LossPct float64
-	DrawPct float64
-	GSPG float64
-	GAPG float64
-	CsPct float64
-	CsaPct float64
-	BigWinPct float64
-	BigLossPct float64
-}
-
-
 /*
-Method that gets slice of stringified elements of `StatsNorm` struct (by record).
-Used as helper function in storing data of `StatsNorm` struct to CSV file.
+Extends a slice of strings with another slice of strings, returning
+only the unique elements among the two given slices.
 */
-func (obj StatsNorm) ListStringifiedValues() []string {
-	var values []string
-	values = append(values, strconv.Itoa(obj.Rank))
-	values = append(values, obj.Team)
-	values = append(values, strconv.Itoa(obj.GamesPlayed))
-	values = append(values, fmt.Sprintf("%g", obj.PPG))
-	values = append(values, fmt.Sprintf("%g", obj.GDPG))
-	values = append(values, fmt.Sprintf("%g", obj.WinPct))
-	values = append(values, fmt.Sprintf("%g", obj.LossPct))
-	values = append(values, fmt.Sprintf("%g", obj.DrawPct))
-	values = append(values, fmt.Sprintf("%g", obj.GSPG))
-	values = append(values, fmt.Sprintf("%g", obj.GAPG))
-	values = append(values, fmt.Sprintf("%g", obj.CsPct))
-	values = append(values, fmt.Sprintf("%g", obj.CsaPct))
-	values = append(values, fmt.Sprintf("%g", obj.BigWinPct))
-	values = append(values, fmt.Sprintf("%g", obj.BigLossPct))
-	return values
+func extendUniqueElements(slice1 []string, slice2 []string) []string {
+	for _, element := range slice2 {
+		if !stringInSlice(element, slice1) {
+			slice1 = append(slice1, element)
+		}
+	}
+	return slice1
 }
 
 
-/*
-Method that gets slice of stringified elements of `StatsAbs` struct (by record).
-Used as helper function in storing data of `StatsAbs` struct to CSV file.
-*/
-func (obj StatsAbs) ListStringifiedValues() []string {
-	var values []string
-	values = append(values, strconv.Itoa(obj.Rank))
-	values = append(values, obj.Team)
-	values = append(values, strconv.Itoa(obj.GamesPlayed))
-	values = append(values, strconv.Itoa(obj.Points))
-	values = append(values, strconv.Itoa(obj.GoalDifference))
-	values = append(values, strconv.Itoa(obj.Wins))
-	values = append(values, strconv.Itoa(obj.Losses))
-	values = append(values, strconv.Itoa(obj.Draws))
-	values = append(values, strconv.Itoa(obj.GoalsScored))
-	values = append(values, strconv.Itoa(obj.GoalsAllowed))
-	values = append(values, strconv.Itoa(obj.CleanSheets))
-	values = append(values, strconv.Itoa(obj.CleanSheetsAgainst))
-	values = append(values, strconv.Itoa(obj.BigWins))
-	values = append(values, strconv.Itoa(obj.BigLosses))
-	return values
-}
-
-
-/*
-Method that gets slice of stringified elements of `LatestForm` struct (by record).
-Used as helper function in storing data of `LatestForm` struct to CSV file.
-*/
-func (obj LatestForm) ListStringifiedValues() []string {
-	var values []string
-	values = append(values, strconv.Itoa(obj.Rank))
-	values = append(values, obj.Team)
-	values = append(values, fmt.Sprintf("%g", obj.LatestPPG))
-	values = append(values, strconv.Itoa(obj.NumGamesConsidered))
-	return values
+func individualInTeam(individual string, team string) bool {
+	re := regexp.MustCompile(`[A-Z][^A-Z]*`)
+	teamMembers := re.FindAllString(team, -1) // Slice of team members
+	for _, teamMember := range teamMembers {
+		if teamMember == individual {
+			return true
+		}
+	}
+	return false
 }
 
 
@@ -414,17 +482,8 @@ func getNormalizedStats(sliceAbsStats []StatsAbs) []StatsNorm {
 }
 
 
-// Sorts normalized stats based on certain metric
-func sortNormalizedStats(sliceNormalizedStats []StatsNorm) []StatsNorm {
-	sort.SliceStable(sliceNormalizedStats, func(i, j int) bool {
-		return sliceNormalizedStats[i].PPG > sliceNormalizedStats[j].PPG
-	})
-	return sliceNormalizedStats
-}
-
-
-// Sorts absolute stats based on certain metric
-func sortAbsoluteStats(sliceAbsoluteStats []StatsAbs) []StatsAbs {
+// Sorts absolute stats based on certain metric/s
+func sortAbsStatsByMetric(sliceAbsoluteStats []StatsAbs) []StatsAbs {
 	sort.SliceStable(sliceAbsoluteStats, func(i, j int) bool {
 		pointsOfI := 3 * sliceAbsoluteStats[i].Wins + sliceAbsoluteStats[i].Draws
 		pointsOfJ := 3 * sliceAbsoluteStats[j].Wins + sliceAbsoluteStats[j].Draws
@@ -436,12 +495,33 @@ func sortAbsoluteStats(sliceAbsoluteStats []StatsAbs) []StatsAbs {
 }
 
 
-// Sorts latest form based on certain metric
-func sortLatestForm(sliceLatestForm []LatestForm) []LatestForm {
+// Sorts normalized stats based on certain metric/s
+func sortNormStatsByMetric(sliceNormalizedStats []StatsNorm) []StatsNorm {
+	sort.SliceStable(sliceNormalizedStats, func(i, j int) bool {
+		return sliceNormalizedStats[i].PPG > sliceNormalizedStats[j].PPG
+	})
+	return sliceNormalizedStats
+}
+
+
+// Sorts latest form based on certain metric/s
+func sortLatestFormByMetric(sliceLatestForm []LatestForm) []LatestForm {
 	sort.SliceStable(sliceLatestForm, func(i, j int) bool {
 		return sliceLatestForm[i].LatestPPG > sliceLatestForm[j].LatestPPG
 	})
 	return sliceLatestForm
+}
+
+
+// NOTE: Only generates incremental ranking, since the slice is already sorted by ranking metric/s
+// Generate ranking AFTER slice of `StatsAbs` objects is sorted based on ranking metric/s
+func rankAbsoluteStats(sliceAbsoluteStats []StatsAbs) []StatsAbs {
+	var sliceAbsoluteStatsRanked []StatsAbs
+	for idx, tempStats := range sliceAbsoluteStats {
+		tempStats.Rank = idx + 1
+		sliceAbsoluteStatsRanked = append(sliceAbsoluteStatsRanked, tempStats)
+	}
+	return sliceAbsoluteStatsRanked
 }
 
 
@@ -456,17 +536,6 @@ func rankNormalizedStats(sliceNormalizedStats []StatsNorm) []StatsNorm {
 }
 
 
-// Generate ranking AFTER slice of `StatsAbs` objects is sorted based on ranking metric/s
-func rankAbsoluteStats(sliceAbsoluteStats []StatsAbs) []StatsAbs {
-	var sliceAbsoluteStatsRanked []StatsAbs
-	for idx, tempStats := range sliceAbsoluteStats {
-		tempStats.Rank = idx + 1
-		sliceAbsoluteStatsRanked = append(sliceAbsoluteStatsRanked, tempStats)
-	}
-	return sliceAbsoluteStatsRanked
-}
-
-
 // Generate ranking AFTER slice of `LatestForm` objects is sorted based on ranking metric/s
 func rankLatestForm(sliceLatestForm []LatestForm) []LatestForm {
 	var sliceLatestFormRanked []LatestForm
@@ -475,46 +544,6 @@ func rankLatestForm(sliceLatestForm []LatestForm) []LatestForm {
 		sliceLatestFormRanked = append(sliceLatestFormRanked, tempStats)
 	}
 	return sliceLatestFormRanked
-}
-
-
-/*
-[Helper function]
-Extends a slice of strings with another slice of strings, returning
-only the unique elements among the two given slices.
-*/
-func extendUniqueElements(slice1 []string, slice2 []string) []string {
-	for _, element := range slice2 {
-		if !stringInSlice(element, slice1) {
-			slice1 = append(slice1, element)
-		}
-	}
-	return slice1
-}
-
-
-func getUniqueIndividualNames(records []RawData) []string {
-	var uniqueIndividuals []string
-	re := regexp.MustCompile(`[A-Z][^A-Z]*`)
-	uniqueTeams := getUniqueTeamNames(records)
-	for _, team := range uniqueTeams {
-		matchedIndividuals := re.FindAllString(team, -1)
-		uniqueIndividuals = extendUniqueElements(uniqueIndividuals, matchedIndividuals)
-	}
-	sort.Strings(uniqueIndividuals)
-	return uniqueIndividuals
-}
-
-
-func individualInTeam(individual string, team string) bool {
-	re := regexp.MustCompile(`[A-Z][^A-Z]*`)
-	teamMembers := re.FindAllString(team, -1) // Slice of team members
-	for _, teamMember := range teamMembers {
-		if teamMember == individual {
-			return true
-		}
-	}
-	return false
 }
 
 
@@ -576,93 +605,6 @@ func getAbsoluteStatsByIndividual(records []RawData, sliceAbsoluteStats []StatsA
 		sliceStatsAllIndividuals = append(sliceStatsAllIndividuals, tempObj)
 	}
 	return sliceStatsAllIndividuals
-}
-
-
-// Saves slice having objects of `StatsNorm` struct to CSV file
-func saveNormToCsv(sliceData []StatsNorm, filepath string) {
-    file, err := os.OpenFile(filepath, os.O_CREATE|os.O_WRONLY, 0777)
-	defer file.Close()
-    if err != nil {
-        os.Exit(1)
-	}
-	var strWrite [][]string // Slice of slice of strings, where each sub-slice represents a record
-	statFields := structs.Names(&StatsNorm{})
-	strWrite = append(strWrite, statFields)
-	for _, obj := range sliceData {
-		record := obj.ListStringifiedValues()
-		strWrite = append(strWrite, record)
-	}
-    csvWriter := csv.NewWriter(file)
-    csvWriter.WriteAll(strWrite)
-    csvWriter.Flush()
-}
-
-
-// Saves slice having objects of `StatsAbs` struct to CSV file
-func saveAbsToCsv(sliceData []StatsAbs, filepath string) {
-    file, err := os.OpenFile(filepath, os.O_CREATE|os.O_WRONLY, 0777)
-	defer file.Close()
-    if err != nil {
-        os.Exit(1)
-	}
-	var strWrite [][]string // Slice of slice of strings, where each sub-slice represents a record
-	statFields := structs.Names(&StatsAbs{})
-	strWrite = append(strWrite, statFields)
-	for _, obj := range sliceData {
-		record := obj.ListStringifiedValues()
-		strWrite = append(strWrite, record)
-	}
-    csvWriter := csv.NewWriter(file)
-    csvWriter.WriteAll(strWrite)
-    csvWriter.Flush()
-}
-
-
-// Saves slice having objects of `LatestForm` struct to CSV file
-func saveLatestFormToCsv(sliceData []LatestForm, filepath string) {
-    file, err := os.OpenFile(filepath, os.O_CREATE|os.O_WRONLY, 0777)
-	defer file.Close()
-    if err != nil {
-        os.Exit(1)
-	}
-	var strWrite [][]string // Slice of slice of strings, where each sub-slice represents a record
-	statFields := structs.Names(&LatestForm{})
-	strWrite = append(strWrite, statFields)
-	for _, obj := range sliceData {
-		record := obj.ListStringifiedValues()
-		strWrite = append(strWrite, record)
-	}
-    csvWriter := csv.NewWriter(file)
-    csvWriter.WriteAll(strWrite)
-    csvWriter.Flush()
-}
-
-
-func removeExtension(filenameWithExt string) string {
-	return strings.TrimSuffix(filenameWithExt, path.Ext(filenameWithExt))
-}
-
-
-func filenameContains2v2(filenameWithExt string) bool {
-	return strings.Contains(strings.ToLower(filenameWithExt), "2v2")
-}
-
-
-type LatestForm struct {
-	Rank int
-	Team string
-	LatestPPG float64
-	NumGamesConsidered int
-}
-
-
-func reverseRecordsOrder(records []RawData) []RawData {
-	sliceRecordsReversed := []RawData{}
-	for i := len(records) - 1; i >= 0; i-- {
-		sliceRecordsReversed = append(sliceRecordsReversed, records[i])
-	}
-	return sliceRecordsReversed
 }
 
 
@@ -749,6 +691,66 @@ func getLatestFormSolo(records []RawData, nGames int) []LatestForm {
 }
 
 
+// Saves slice having objects of `StatsAbs` struct to CSV file
+func saveAbsToCsv(sliceData []StatsAbs, filepath string) {
+    file, err := os.OpenFile(filepath, os.O_CREATE|os.O_WRONLY, 0777)
+	defer file.Close()
+    if err != nil {
+        os.Exit(1)
+	}
+	var sliceStringifiedRecords [][]string // Slice of slice of strings, where each sub-slice represents a record
+	statFields := structs.Names(&StatsAbs{})
+	sliceStringifiedRecords = append(sliceStringifiedRecords, statFields)
+	for _, obj := range sliceData {
+		record := obj.ListStringifiedValues()
+		sliceStringifiedRecords = append(sliceStringifiedRecords, record)
+	}
+    csvWriter := csv.NewWriter(file)
+    csvWriter.WriteAll(sliceStringifiedRecords)
+    csvWriter.Flush()
+}
+
+
+// Saves slice having objects of `StatsNorm` struct to CSV file
+func saveNormToCsv(sliceData []StatsNorm, filepath string) {
+    file, err := os.OpenFile(filepath, os.O_CREATE|os.O_WRONLY, 0777)
+	defer file.Close()
+    if err != nil {
+        os.Exit(1)
+	}
+	var sliceStringifiedRecords [][]string // Slice of slice of strings, where each sub-slice represents a record
+	statFields := structs.Names(&StatsNorm{})
+	sliceStringifiedRecords = append(sliceStringifiedRecords, statFields)
+	for _, obj := range sliceData {
+		record := obj.ListStringifiedValues()
+		sliceStringifiedRecords = append(sliceStringifiedRecords, record)
+	}
+    csvWriter := csv.NewWriter(file)
+    csvWriter.WriteAll(sliceStringifiedRecords)
+    csvWriter.Flush()
+}
+
+
+// Saves slice having objects of `LatestForm` struct to CSV file
+func saveLatestFormToCsv(sliceData []LatestForm, filepath string) {
+    file, err := os.OpenFile(filepath, os.O_CREATE|os.O_WRONLY, 0777)
+	defer file.Close()
+    if err != nil {
+        os.Exit(1)
+	}
+	var sliceStringifiedRecords [][]string // Slice of slice of strings, where each sub-slice represents a record
+	statFields := structs.Names(&LatestForm{})
+	sliceStringifiedRecords = append(sliceStringifiedRecords, statFields)
+	for _, obj := range sliceData {
+		record := obj.ListStringifiedValues()
+		sliceStringifiedRecords = append(sliceStringifiedRecords, record)
+	}
+    csvWriter := csv.NewWriter(file)
+    csvWriter.WriteAll(sliceStringifiedRecords)
+    csvWriter.Flush()
+}
+
+
 // Gets slice of all filenames from data source
 func getListOfDataFilenames() []string {
     f, err := os.Open(pathDataFolder)
@@ -778,13 +780,13 @@ func executePipeline(filename string) {
 	// ########## Teams stats ##########
 	sliceAbsStats := getAbsoluteStats(rawRecords)
 	sliceNormStats := getNormalizedStats(sliceAbsStats)
-	sliceAbsStats = sortAbsoluteStats(sliceAbsStats)
+	sliceAbsStats = sortAbsStatsByMetric(sliceAbsStats)
 	sliceAbsStats = rankAbsoluteStats(sliceAbsStats)
-	sliceNormStats = sortNormalizedStats(sliceNormStats)
+	sliceNormStats = sortNormStatsByMetric(sliceNormStats)
 	sliceNormStats = rankNormalizedStats(sliceNormStats)
 	// LatestForm
 	sliceLatestForm := getLatestForm(rawRecords, nLatestGames)
-	sliceLatestForm = sortLatestForm(sliceLatestForm)
+	sliceLatestForm = sortLatestFormByMetric(sliceLatestForm)
 	sliceLatestForm = rankLatestForm(sliceLatestForm)
 	// Save results
 	saveAbsToCsv(sliceAbsStats, pathResultsFolder + "/" + filenameWithoutExt + " - Teams - Absolute Stats.csv")
@@ -795,13 +797,13 @@ func executePipeline(filename string) {
 	if filenameContains2v2(filename) {
 		sliceAbsStatsSolo := getAbsoluteStatsByIndividual(rawRecords, sliceAbsStats)
 		sliceNormStatsSolo := getNormalizedStats(sliceAbsStatsSolo)
-		sliceAbsStatsSolo = sortAbsoluteStats(sliceAbsStatsSolo)
+		sliceAbsStatsSolo = sortAbsStatsByMetric(sliceAbsStatsSolo)
 		sliceAbsStatsSolo = rankAbsoluteStats(sliceAbsStatsSolo)
-		sliceNormStatsSolo = sortNormalizedStats(sliceNormStatsSolo)
+		sliceNormStatsSolo = sortNormStatsByMetric(sliceNormStatsSolo)
 		sliceNormStatsSolo = rankNormalizedStats(sliceNormStatsSolo)
 		// LatestForm
 		sliceLatestFormSolo := getLatestFormSolo(rawRecords, nLatestGames)
-		sliceLatestFormSolo = sortLatestForm(sliceLatestFormSolo)
+		sliceLatestFormSolo = sortLatestFormByMetric(sliceLatestFormSolo)
 		sliceLatestFormSolo = rankLatestForm(sliceLatestFormSolo)
 		// Save results
 		saveAbsToCsv(sliceAbsStatsSolo, pathResultsFolder +  "/" + filenameWithoutExt + " - Individuals - Absolute Stats.csv")
