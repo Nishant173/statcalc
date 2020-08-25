@@ -609,32 +609,32 @@ func getAbsoluteStatsByIndividual(records []RawData, sliceAbsoluteStats []StatsA
 
 
 /*
-Get latest form of team/individual in last `nGames` games. Metric used is PPG (Points per game).
-NOTE: Assumes that the records are sorted in ascending order of time of occurence.
+Get latest form of team/individual in last `nLatestGames` games. Metric used is PPG (Points per game).
+NOTE: Assumes that the records are sorted in ascending order of time of occurence of matches.
 */
-func getLatestForm(records []RawData, nGames int) []LatestForm {
+func getLatestForm(records []RawData, nLatestGames int) []LatestForm {
 	recordsReversed := reverseRecordsOrder(records)
 	teams := getUniqueTeamNames(records)
 	sliceLatestFormData := []LatestForm{}
 	for _, team := range teams {
 		wins, draws, gamesPlayed := 0, 0, 0
-		for _, obj := range recordsReversed {
-			if team == obj.HomeTeam {
-				if obj.HomeGoals > obj.AwayGoals {
+		for _, match := range recordsReversed {
+			if team == match.HomeTeam {
+				if match.HomeGoals > match.AwayGoals {
 					wins ++
-				} else if obj.HomeGoals == obj.AwayGoals {
+				} else if match.HomeGoals == match.AwayGoals {
 					draws ++
 				}
 				gamesPlayed ++
-			} else if team == obj.AwayTeam {
-				if obj.AwayGoals > obj.HomeGoals {
+			} else if team == match.AwayTeam {
+				if match.AwayGoals > match.HomeGoals {
 					wins ++
-				} else if obj.HomeGoals == obj.AwayGoals {
+				} else if match.HomeGoals == match.AwayGoals {
 					draws ++
 				}
 				gamesPlayed ++
 			}
-			if gamesPlayed == nGames {
+			if gamesPlayed == nLatestGames {
 				break
 			}
 		}
@@ -651,30 +651,29 @@ func getLatestForm(records []RawData, nGames int) []LatestForm {
 }
 
 
-func getLatestFormSolo(records []RawData, nGames int) []LatestForm {
+func getLatestFormSolo(records []RawData, nLatestGames int) []LatestForm {
 	recordsReversed := reverseRecordsOrder(records)
 	individuals := getUniqueIndividualNames(records)
 	sliceLatestFormData := []LatestForm{}
 	for _, individual := range individuals {
 		wins, draws, gamesPlayed := 0, 0, 0
-		for _, obj := range recordsReversed {
-			homeTeam, awayTeam := obj.HomeTeam, obj.AwayTeam
-			if individualInTeam(individual, homeTeam) {
-				if obj.HomeGoals > obj.AwayGoals {
+		for _, match := range recordsReversed {
+			if individualInTeam(individual, match.HomeTeam) {
+				if match.HomeGoals > match.AwayGoals {
 					wins ++
-				} else if obj.HomeGoals == obj.AwayGoals {
+				} else if match.HomeGoals == match.AwayGoals {
 					draws ++
 				}
 				gamesPlayed ++
-			} else if individualInTeam(individual, awayTeam) {
-				if obj.AwayGoals > obj.HomeGoals {
+			} else if individualInTeam(individual, match.AwayTeam) {
+				if match.AwayGoals > match.HomeGoals {
 					wins ++
-				} else if obj.HomeGoals == obj.AwayGoals {
+				} else if match.HomeGoals == match.AwayGoals {
 					draws ++
 				}
 				gamesPlayed ++
 			}
-			if gamesPlayed == nGames {
+			if gamesPlayed == nLatestGames {
 				break
 			}
 		}
