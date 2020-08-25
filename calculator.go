@@ -82,6 +82,7 @@ type LatestForm struct {
 
 /*
 Method that gets slice of stringified elements of `StatsAbs` struct (by record).
+NOTE: Elements of the slice returned must be in same order as the attributes defined in the struct.
 Used as helper function in storing data of `StatsAbs` struct to CSV file.
 */
 func (obj StatsAbs) ListStringifiedValues() []string {
@@ -106,6 +107,7 @@ func (obj StatsAbs) ListStringifiedValues() []string {
 
 /*
 Method that gets slice of stringified elements of `StatsNorm` struct (by record).
+NOTE: Elements of the slice returned must be in same order as the attributes defined in the struct.
 Used as helper function in storing data of `StatsNorm` struct to CSV file.
 */
 func (obj StatsNorm) ListStringifiedValues() []string {
@@ -130,6 +132,7 @@ func (obj StatsNorm) ListStringifiedValues() []string {
 
 /*
 Method that gets slice of stringified elements of `LatestForm` struct (by record).
+NOTE: Elements of the slice returned must be in same order as the attributes defined in the struct.
 Used as helper function in storing data of `LatestForm` struct to CSV file.
 */
 func (obj LatestForm) ListStringifiedValues() []string {
@@ -513,9 +516,9 @@ func sortLatestFormByMetric(sliceLatestForm []LatestForm) []LatestForm {
 }
 
 
-// NOTE: Only generates incremental ranking, since the slice is already sorted by ranking metric/s
-// Generate ranking AFTER slice of `StatsAbs` objects is sorted based on ranking metric/s
-func rankAbsoluteStats(sliceAbsoluteStats []StatsAbs) []StatsAbs {
+// NOTE: Only attaches incremental ranking, since the slice is already sorted by ranking metric/s
+// Attach ranking AFTER slice of `StatsAbs` objects is sorted based on ranking metric/s
+func attachRankingToAbsStats(sliceAbsoluteStats []StatsAbs) []StatsAbs {
 	var sliceAbsoluteStatsRanked []StatsAbs
 	for idx, tempStats := range sliceAbsoluteStats {
 		tempStats.Rank = idx + 1
@@ -525,8 +528,8 @@ func rankAbsoluteStats(sliceAbsoluteStats []StatsAbs) []StatsAbs {
 }
 
 
-// Generate ranking AFTER slice of `StatsNorm` objects is sorted based on ranking metric/s
-func rankNormalizedStats(sliceNormalizedStats []StatsNorm) []StatsNorm {
+// Attach ranking AFTER slice of `StatsNorm` objects is sorted based on ranking metric/s
+func attachRankingToNormStats(sliceNormalizedStats []StatsNorm) []StatsNorm {
 	var sliceNormalizedStatsRanked []StatsNorm
 	for idx, tempStats := range sliceNormalizedStats {
 		tempStats.Rank = idx + 1
@@ -536,8 +539,8 @@ func rankNormalizedStats(sliceNormalizedStats []StatsNorm) []StatsNorm {
 }
 
 
-// Generate ranking AFTER slice of `LatestForm` objects is sorted based on ranking metric/s
-func rankLatestForm(sliceLatestForm []LatestForm) []LatestForm {
+// Attach ranking AFTER slice of `LatestForm` objects is sorted based on ranking metric/s
+func attachRankingToLatestForm(sliceLatestForm []LatestForm) []LatestForm {
 	var sliceLatestFormRanked []LatestForm
 	for idx, tempStats := range sliceLatestForm {
 		tempStats.Rank = idx + 1
@@ -548,7 +551,7 @@ func rankLatestForm(sliceLatestForm []LatestForm) []LatestForm {
 
 
 /*
-Gets slice of absolute stats of individuals from (raw records, slice of absolute stats of teams).
+Gets slice of absolute stats of individuals from `RawData`, `StatsAbs` of teams.
 Returns slice wherein each element of the slice is an object of the struct `StatsAbs`
 */
 func getAbsoluteStatsByIndividual(records []RawData, sliceAbsoluteStats []StatsAbs) []StatsAbs {
@@ -780,13 +783,13 @@ func executePipeline(filename string) {
 	sliceAbsStats := getAbsoluteStats(rawRecords)
 	sliceNormStats := getNormalizedStats(sliceAbsStats)
 	sliceAbsStats = sortAbsStatsByMetric(sliceAbsStats)
-	sliceAbsStats = rankAbsoluteStats(sliceAbsStats)
+	sliceAbsStats = attachRankingToAbsStats(sliceAbsStats)
 	sliceNormStats = sortNormStatsByMetric(sliceNormStats)
-	sliceNormStats = rankNormalizedStats(sliceNormStats)
+	sliceNormStats = attachRankingToNormStats(sliceNormStats)
 	// LatestForm
 	sliceLatestForm := getLatestForm(rawRecords, nLatestGames)
 	sliceLatestForm = sortLatestFormByMetric(sliceLatestForm)
-	sliceLatestForm = rankLatestForm(sliceLatestForm)
+	sliceLatestForm = attachRankingToLatestForm(sliceLatestForm)
 	// Save results
 	saveAbsToCsv(sliceAbsStats, pathResultsFolder + "/" + filenameWithoutExt + " - Teams - Absolute Stats.csv")
 	saveNormToCsv(sliceNormStats, pathResultsFolder +  "/" + filenameWithoutExt + " - Teams - Normalized Stats.csv")
@@ -797,13 +800,13 @@ func executePipeline(filename string) {
 		sliceAbsStatsSolo := getAbsoluteStatsByIndividual(rawRecords, sliceAbsStats)
 		sliceNormStatsSolo := getNormalizedStats(sliceAbsStatsSolo)
 		sliceAbsStatsSolo = sortAbsStatsByMetric(sliceAbsStatsSolo)
-		sliceAbsStatsSolo = rankAbsoluteStats(sliceAbsStatsSolo)
+		sliceAbsStatsSolo = attachRankingToAbsStats(sliceAbsStatsSolo)
 		sliceNormStatsSolo = sortNormStatsByMetric(sliceNormStatsSolo)
-		sliceNormStatsSolo = rankNormalizedStats(sliceNormStatsSolo)
+		sliceNormStatsSolo = attachRankingToNormStats(sliceNormStatsSolo)
 		// LatestForm
 		sliceLatestFormSolo := getLatestFormSolo(rawRecords, nLatestGames)
 		sliceLatestFormSolo = sortLatestFormByMetric(sliceLatestFormSolo)
-		sliceLatestFormSolo = rankLatestForm(sliceLatestFormSolo)
+		sliceLatestFormSolo = attachRankingToLatestForm(sliceLatestFormSolo)
 		// Save results
 		saveAbsToCsv(sliceAbsStatsSolo, pathResultsFolder +  "/" + filenameWithoutExt + " - Individuals - Absolute Stats.csv")
 		saveNormToCsv(sliceNormStatsSolo, pathResultsFolder +  "/" + filenameWithoutExt + " - Individuals - Normalized Stats.csv")
