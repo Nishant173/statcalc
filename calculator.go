@@ -581,11 +581,11 @@ func extractIndividualStatsFromTeamStats(individual string, sliceTeamAbsStats []
 Gets slice of absolute stats of individuals from `RawData` records, `StatsAbs` of teams.
 Returns slice wherein each element of the slice is an object of the struct `StatsAbs`
 */
-func getAbsoluteStatsByIndividual(records []RawData, sliceAbsoluteStats []StatsAbs) []StatsAbs {
+func getAbsoluteStatsByIndividual(records []RawData, sliceAbsoluteTeamStats []StatsAbs) []StatsAbs {
 	individuals := getUniqueIndividualNames(records)
 	var sliceStatsAllIndividuals []StatsAbs
 	for _, individual := range individuals {
-		mapIndividualStats := extractIndividualStatsFromTeamStats(individual, sliceAbsoluteStats)
+		mapIndividualStats := extractIndividualStatsFromTeamStats(individual, sliceAbsoluteTeamStats)
 		objStatsByIndividual := StatsAbs{
 			Rank: 0,
 			Team: individual,
