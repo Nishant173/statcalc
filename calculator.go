@@ -197,6 +197,41 @@ func filenameContains2v2(filenameWithExt string) bool {
 }
 
 
+func stringInSlice(str string, slice []string) bool {
+    for _, element := range slice {
+        if element == str {
+            return true
+        }
+    }
+    return false
+}
+
+
+/*
+Extends a slice of strings with another slice of strings, returning
+only the unique elements among the two given slices.
+*/
+func extendUniqueElements(slice1 []string, slice2 []string) []string {
+	for _, element := range slice2 {
+		if !stringInSlice(element, slice1) {
+			slice1 = append(slice1, element)
+		}
+	}
+	return slice1
+}
+
+
+func integerify(num float64) int {
+    return int(num + math.Copysign(0.5, num))
+}
+
+
+func round(num float64, precision int) float64 {
+    output := math.Pow(10, float64(precision))
+    return float64(integerify(num * output)) / output
+}
+
+
 func reverseRecordsOrder(records []RawData) []RawData {
 	sliceRecordsReversed := []RawData{}
 	for i := len(records) - 1; i >= 0; i-- {
@@ -238,30 +273,6 @@ func getUniqueIndividualNames(records []RawData) []string {
 }
 
 
-func stringInSlice(str string, slice []string) bool {
-    for _, element := range slice {
-        if element == str {
-            return true
-        }
-    }
-    return false
-}
-
-
-/*
-Extends a slice of strings with another slice of strings, returning
-only the unique elements among the two given slices.
-*/
-func extendUniqueElements(slice1 []string, slice2 []string) []string {
-	for _, element := range slice2 {
-		if !stringInSlice(element, slice1) {
-			slice1 = append(slice1, element)
-		}
-	}
-	return slice1
-}
-
-
 func individualInTeam(individual string, team string) bool {
 	re := regexp.MustCompile(`[A-Z][^A-Z]*`)
 	teamMembers := re.FindAllString(team, -1) // Slice of team members
@@ -274,14 +285,36 @@ func individualInTeam(individual string, team string) bool {
 }
 
 
-func integerify(num float64) int {
-    return int(num + math.Copysign(0.5, num))
+/*
+NOTE: Used for 2v2 games only.
+Returns true if records have correct 2v2 naming convention; false otherwise
+*/
+func isValid2v2TeamName(records []RawData) bool {
+	boolValidity := true
+	re := regexp.MustCompile(`[A-Z][^A-Z]*`)
+	for _, record := range records {
+		homeTeam, awayTeam := record.HomeTeam, record.AwayTeam
+		homeTeamMembers := re.FindAllString(homeTeam, -1)
+		awayTeamMembers := re.FindAllString(awayTeam, -1)
+		if len(homeTeamMembers) != 2 || len(awayTeamMembers) != 2 {
+			boolValidity = false
+		}
+	}
+	return boolValidity
 }
 
 
-func round(num float64, precision int) float64 {
-    output := math.Pow(10, float64(precision))
-    return float64(integerify(num * output)) / output
+func printInvalid2v2TeamNames(records []RawData) {
+	re := regexp.MustCompile(`[A-Z][^A-Z]*`)
+	for idx, record := range records {
+		homeTeam, awayTeam := record.HomeTeam, record.AwayTeam
+		homeTeamMembers := re.FindAllString(homeTeam, -1)
+		awayTeamMembers := re.FindAllString(awayTeam, -1)
+		if len(homeTeamMembers) != 2 || len(awayTeamMembers) != 2 {
+			idxStringified := strconv.Itoa(idx + 1)
+			fmt.Println("Error - Incorrect 2v2 naming convention at record number " + idxStringified + ". Team-names given: " + homeTeam + ", " + awayTeam)
+		}
+	}
 }
 
 
@@ -861,9 +894,10 @@ func executePipeline(filename string) {
 	saveAbsToCsv(sliceAbsStats, pathResultsFolder + "/" + filenameWithoutExt + " - Teams - Absolute Stats.csv")
 	saveNormToCsv(sliceNormStats, pathResultsFolder +  "/" + filenameWithoutExt + " - Teams - Normalized Stats.csv")
 	saveLatestFormToCsv(sliceLatestForm, pathResultsFolder +  "/" + filenameWithoutExt + " - Teams - Latest Form.csv")
+	fmt.Println("Computed teams' stats for " + filename)
 	
 	// ########## Individuals' stats ##########
-	if filenameContains2v2(filename) {
+	if filenameContains2v2(filename) && isValid2v2TeamName(rawRecords) {
 		sliceAbsStatsSolo := getAbsoluteStatsByIndividual(rawRecords, sliceAbsStats)
 		sliceNormStatsSolo := getNormalizedStats(sliceAbsStatsSolo)
 		sliceAbsStatsSolo = sortAbsStatsByMetric(sliceAbsStatsSolo)
@@ -878,8 +912,14 @@ func executePipeline(filename string) {
 		saveAbsToCsv(sliceAbsStatsSolo, pathResultsFolder +  "/" + filenameWithoutExt + " - Individuals - Absolute Stats.csv")
 		saveNormToCsv(sliceNormStatsSolo, pathResultsFolder +  "/" + filenameWithoutExt + " - Individuals - Normalized Stats.csv")
 		saveLatestFormToCsv(sliceLatestFormSolo, pathResultsFolder +  "/" + filenameWithoutExt + " - Individuals - Latest Form.csv")
+		fmt.Println("Computed individuals' stats for " + filename)
 	}
-	fmt.Println("Computed stats for " + filename)
+	if filenameContains2v2(filename) {
+		if !isValid2v2TeamName(rawRecords) {
+			printInvalid2v2TeamNames(rawRecords)
+			fmt.Println("Incorrect team-names! Could NOT compute individuals' stats for " + filename)
+		}
+	}
 }
 
 
