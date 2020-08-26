@@ -647,30 +647,30 @@ func representLatestForm(records []RawData, team string, nLatestGames int) strin
 	recordsReversed := reverseRecordsOrder(records)
 	representationLatestForm := ""
 	numGamesConsidered := 0
-		for _, match := range recordsReversed {
-			if team == match.HomeTeam {
-				if match.HomeGoals > match.AwayGoals {
-					representationLatestForm += "W"
-				} else if match.HomeGoals == match.AwayGoals {
-					representationLatestForm += "D"
-				} else if match.HomeGoals < match.AwayGoals {
-					representationLatestForm += "L"
-				}
-				numGamesConsidered ++
-			} else if team == match.AwayTeam {
-				if match.AwayGoals > match.HomeGoals {
-					representationLatestForm += "W"
-				} else if match.AwayGoals == match.HomeGoals {
-					representationLatestForm += "D"
-				} else if match.AwayGoals < match.HomeGoals {
-					representationLatestForm += "L"
-				}
-				numGamesConsidered ++
+	for _, match := range recordsReversed {
+		if team == match.HomeTeam {
+			if match.HomeGoals > match.AwayGoals {
+				representationLatestForm += "W"
+			} else if match.HomeGoals == match.AwayGoals {
+				representationLatestForm += "D"
+			} else if match.HomeGoals < match.AwayGoals {
+				representationLatestForm += "L"
 			}
-			if numGamesConsidered == nLatestGames {
-				break
+			numGamesConsidered ++
+		} else if team == match.AwayTeam {
+			if match.AwayGoals > match.HomeGoals {
+				representationLatestForm += "W"
+			} else if match.AwayGoals == match.HomeGoals {
+				representationLatestForm += "D"
+			} else if match.AwayGoals < match.HomeGoals {
+				representationLatestForm += "L"
 			}
+			numGamesConsidered ++
 		}
+		if numGamesConsidered == nLatestGames {
+			break
+		}
+	}
 	return representationLatestForm
 }
 
@@ -680,31 +680,97 @@ func representLatestFormSolo(records []RawData, individual string, nLatestGames 
 	recordsReversed := reverseRecordsOrder(records)
 	representationLatestForm := ""
 	numGamesConsidered := 0
-		for _, match := range recordsReversed {
-			if individualInTeam(individual, match.HomeTeam) {
-				if match.HomeGoals > match.AwayGoals {
-					representationLatestForm += "W"
-				} else if match.HomeGoals == match.AwayGoals {
-					representationLatestForm += "D"
-				} else if match.HomeGoals < match.AwayGoals {
-					representationLatestForm += "L"
-				}
-				numGamesConsidered ++
-			} else if individualInTeam(individual, match.AwayTeam) {
-				if match.AwayGoals > match.HomeGoals {
-					representationLatestForm += "W"
-				} else if match.AwayGoals == match.HomeGoals {
-					representationLatestForm += "D"
-				} else if match.AwayGoals < match.HomeGoals {
-					representationLatestForm += "L"
-				}
-				numGamesConsidered ++
+	for _, match := range recordsReversed {
+		if individualInTeam(individual, match.HomeTeam) {
+			if match.HomeGoals > match.AwayGoals {
+				representationLatestForm += "W"
+			} else if match.HomeGoals == match.AwayGoals {
+				representationLatestForm += "D"
+			} else if match.HomeGoals < match.AwayGoals {
+				representationLatestForm += "L"
 			}
-			if numGamesConsidered == nLatestGames {
-				break
+			numGamesConsidered ++
+		} else if individualInTeam(individual, match.AwayTeam) {
+			if match.AwayGoals > match.HomeGoals {
+				representationLatestForm += "W"
+			} else if match.AwayGoals == match.HomeGoals {
+				representationLatestForm += "D"
+			} else if match.AwayGoals < match.HomeGoals {
+				representationLatestForm += "L"
 			}
+			numGamesConsidered ++
 		}
+		if numGamesConsidered == nLatestGames {
+			break
+		}
+	}
 	return representationLatestForm
+}
+
+
+// Get latest PPG info for Teams. Returns info about "LatestPPG" and "NumGamesConsidered"
+func getLatestPpgInfo(records []RawData, team string, nLatestGames int) map[string]float64 {
+	recordsReversed := reverseRecordsOrder(records)
+	mapLatestPpgInfo := map[string]float64{}
+	wins, draws, numGamesConsidered := 0, 0, 0
+	for _, match := range recordsReversed {
+		if team == match.HomeTeam {
+			if match.HomeGoals > match.AwayGoals {
+				wins ++
+			} else if match.HomeGoals == match.AwayGoals {
+				draws ++
+			}
+			numGamesConsidered ++
+		} else if team == match.AwayTeam {
+			if match.AwayGoals > match.HomeGoals {
+				wins ++
+			} else if match.HomeGoals == match.AwayGoals {
+				draws ++
+			}
+			numGamesConsidered ++
+		}
+		if numGamesConsidered == nLatestGames {
+			break
+		}
+	}
+	latestPPG := float64(3 * wins + draws) / float64(numGamesConsidered)
+	latestPPG = round(latestPPG, 4)
+	mapLatestPpgInfo["LatestPPG"] += latestPPG
+	mapLatestPpgInfo["NumGamesConsidered"] += float64(numGamesConsidered)
+	return mapLatestPpgInfo
+}
+
+
+// Get latest PPG info for Individuals. Returns info about "LatestPPG" and "NumGamesConsidered"
+func getLatestPpgInfoSolo(records []RawData, individual string, nLatestGames int) map[string]float64 {
+	recordsReversed := reverseRecordsOrder(records)
+	mapLatestPpgInfoSolo := map[string]float64{}
+	wins, draws, numGamesConsidered := 0, 0, 0
+	for _, match := range recordsReversed {
+		if individualInTeam(individual, match.HomeTeam) {
+			if match.HomeGoals > match.AwayGoals {
+				wins ++
+			} else if match.HomeGoals == match.AwayGoals {
+				draws ++
+			}
+			numGamesConsidered ++
+		} else if individualInTeam(individual, match.AwayTeam) {
+			if match.AwayGoals > match.HomeGoals {
+				wins ++
+			} else if match.HomeGoals == match.AwayGoals {
+				draws ++
+			}
+			numGamesConsidered ++
+		}
+		if numGamesConsidered == nLatestGames {
+			break
+		}
+	}
+	latestPPG := float64(3 * wins + draws) / float64(numGamesConsidered)
+	latestPPG = round(latestPPG, 4)
+	mapLatestPpgInfoSolo["LatestPPG"] += latestPPG
+	mapLatestPpgInfoSolo["NumGamesConsidered"] += float64(numGamesConsidered)
+	return mapLatestPpgInfoSolo
 }
 
 
@@ -713,38 +779,16 @@ Get latest form of team/individual in last `nLatestGames` games. Metric used is 
 NOTE: Assumes that the records are sorted in ascending order of time of occurence of matches.
 */
 func getLatestForm(records []RawData, nLatestGames int) []LatestForm {
-	recordsReversed := reverseRecordsOrder(records)
-	teams := getUniqueTeamNames(records)
 	sliceLatestFormData := []LatestForm{}
+	teams := getUniqueTeamNames(records)
 	for _, team := range teams {
-		wins, draws, gamesPlayed := 0, 0, 0
-		for _, match := range recordsReversed {
-			if team == match.HomeTeam {
-				if match.HomeGoals > match.AwayGoals {
-					wins ++
-				} else if match.HomeGoals == match.AwayGoals {
-					draws ++
-				}
-				gamesPlayed ++
-			} else if team == match.AwayTeam {
-				if match.AwayGoals > match.HomeGoals {
-					wins ++
-				} else if match.HomeGoals == match.AwayGoals {
-					draws ++
-				}
-				gamesPlayed ++
-			}
-			if gamesPlayed == nLatestGames {
-				break
-			}
-		}
-		latestPPG := float64(3 * wins + draws) / float64(gamesPlayed)
+		mapLatestPpgInfo := getLatestPpgInfo(records, team, nLatestGames)
 		tempObj := LatestForm{
 			Rank: 0,
 			Team: team,
 			Form: representLatestForm(records, team, nLatestGames),
-			LatestPPG: round(latestPPG, 4),
-			NumGamesConsidered: gamesPlayed,
+			LatestPPG: mapLatestPpgInfo["LatestPPG"],
+			NumGamesConsidered: int(mapLatestPpgInfo["NumGamesConsidered"]),
 		}
 		sliceLatestFormData = append(sliceLatestFormData, tempObj)
 	}
@@ -753,38 +797,16 @@ func getLatestForm(records []RawData, nLatestGames int) []LatestForm {
 
 
 func getLatestFormSolo(records []RawData, nLatestGames int) []LatestForm {
-	recordsReversed := reverseRecordsOrder(records)
-	individuals := getUniqueIndividualNames(records)
 	sliceLatestFormData := []LatestForm{}
+	individuals := getUniqueIndividualNames(records)
 	for _, individual := range individuals {
-		wins, draws, gamesPlayed := 0, 0, 0
-		for _, match := range recordsReversed {
-			if individualInTeam(individual, match.HomeTeam) {
-				if match.HomeGoals > match.AwayGoals {
-					wins ++
-				} else if match.HomeGoals == match.AwayGoals {
-					draws ++
-				}
-				gamesPlayed ++
-			} else if individualInTeam(individual, match.AwayTeam) {
-				if match.AwayGoals > match.HomeGoals {
-					wins ++
-				} else if match.HomeGoals == match.AwayGoals {
-					draws ++
-				}
-				gamesPlayed ++
-			}
-			if gamesPlayed == nLatestGames {
-				break
-			}
-		}
-		latestPPG := float64(3 * wins + draws) / float64(gamesPlayed)
+		mapLatestPpgInfoSolo := getLatestPpgInfoSolo(records, individual, nLatestGames)
 		tempObj := LatestForm{
 			Rank: 0,
 			Team: individual,
 			Form: representLatestFormSolo(records, individual, nLatestGames),
-			LatestPPG: round(latestPPG, 4),
-			NumGamesConsidered: gamesPlayed,
+			LatestPPG: mapLatestPpgInfoSolo["LatestPPG"],
+			NumGamesConsidered: int(mapLatestPpgInfoSolo["NumGamesConsidered"]),
 		}
 		sliceLatestFormData = append(sliceLatestFormData, tempObj)
 	}
