@@ -75,6 +75,7 @@ type StatsNorm struct {
 type LatestForm struct {
 	Rank int
 	Team string
+	Form string // WLD (Wins, Losses, Draws) representation of latest form
 	LatestPPG float64
 	NumGamesConsidered int
 }
@@ -139,6 +140,7 @@ func (obj LatestForm) ListStringifiedValues() []string {
 	var values []string
 	values = append(values, strconv.Itoa(obj.Rank))
 	values = append(values, obj.Team)
+	values = append(values, obj.Form)
 	values = append(values, fmt.Sprintf("%g", obj.LatestPPG))
 	values = append(values, strconv.Itoa(obj.NumGamesConsidered))
 	return values
@@ -608,6 +610,72 @@ func getAbsoluteStatsByIndividual(records []RawData, sliceAbsoluteTeamStats []St
 }
 
 
+// Gets string of WLD (Wins, Losses, Draws) representation of `LatestForm` for Teams
+func representLatestForm(records []RawData, team string, nLatestGames int) string {
+	recordsReversed := reverseRecordsOrder(records)
+	representationLatestForm := ""
+	numGamesConsidered := 0
+		for _, match := range recordsReversed {
+			if team == match.HomeTeam {
+				if match.HomeGoals > match.AwayGoals {
+					representationLatestForm += "W"
+				} else if match.HomeGoals == match.AwayGoals {
+					representationLatestForm += "D"
+				} else if match.HomeGoals < match.AwayGoals {
+					representationLatestForm += "L"
+				}
+				numGamesConsidered ++
+			} else if team == match.AwayTeam {
+				if match.AwayGoals > match.HomeGoals {
+					representationLatestForm += "W"
+				} else if match.AwayGoals == match.HomeGoals {
+					representationLatestForm += "D"
+				} else if match.AwayGoals < match.HomeGoals {
+					representationLatestForm += "L"
+				}
+				numGamesConsidered ++
+			}
+			if numGamesConsidered == nLatestGames {
+				break
+			}
+		}
+	return representationLatestForm
+}
+
+
+// Gets string of WLD (Wins, Losses, Draws) representation of `LatestForm` for Individuals
+func representLatestFormSolo(records []RawData, individual string, nLatestGames int) string {
+	recordsReversed := reverseRecordsOrder(records)
+	representationLatestForm := ""
+	numGamesConsidered := 0
+		for _, match := range recordsReversed {
+			if individualInTeam(individual, match.HomeTeam) {
+				if match.HomeGoals > match.AwayGoals {
+					representationLatestForm += "W"
+				} else if match.HomeGoals == match.AwayGoals {
+					representationLatestForm += "D"
+				} else if match.HomeGoals < match.AwayGoals {
+					representationLatestForm += "L"
+				}
+				numGamesConsidered ++
+			} else if individualInTeam(individual, match.AwayTeam) {
+				if match.AwayGoals > match.HomeGoals {
+					representationLatestForm += "W"
+				} else if match.AwayGoals == match.HomeGoals {
+					representationLatestForm += "D"
+				} else if match.AwayGoals < match.HomeGoals {
+					representationLatestForm += "L"
+				}
+				numGamesConsidered ++
+			}
+			if numGamesConsidered == nLatestGames {
+				break
+			}
+		}
+	return representationLatestForm
+}
+
+
 /*
 Get latest form of team/individual in last `nLatestGames` games. Metric used is PPG (Points per game).
 NOTE: Assumes that the records are sorted in ascending order of time of occurence of matches.
@@ -642,6 +710,7 @@ func getLatestForm(records []RawData, nLatestGames int) []LatestForm {
 		tempObj := LatestForm{
 			Rank: 0,
 			Team: team,
+			Form: representLatestForm(records, team, nLatestGames),
 			LatestPPG: round(latestPPG, 4),
 			NumGamesConsidered: gamesPlayed,
 		}
@@ -681,6 +750,7 @@ func getLatestFormSolo(records []RawData, nLatestGames int) []LatestForm {
 		tempObj := LatestForm{
 			Rank: 0,
 			Team: individual,
+			Form: representLatestFormSolo(records, individual, nLatestGames),
 			LatestPPG: round(latestPPG, 4),
 			NumGamesConsidered: gamesPlayed,
 		}
