@@ -289,7 +289,7 @@ func individualInTeam(individual string, team string) bool {
 NOTE: Used for 2v2 games only.
 Returns true if records have correct 2v2 naming convention; false otherwise
 */
-func isValid2v2TeamName(records []RawData) bool {
+func isValid2v2Naming(records []RawData) bool {
 	boolValidity := true
 	re := regexp.MustCompile(`[A-Z][^A-Z]*`)
 	for _, record := range records {
@@ -897,7 +897,7 @@ func executePipeline(filename string) {
 	fmt.Println("Computed teams' stats for " + filename)
 	
 	// ########## Individuals' stats ##########
-	if filenameContains2v2(filename) && isValid2v2TeamName(rawRecords) {
+	if filenameContains2v2(filename) && isValid2v2Naming(rawRecords) {
 		sliceAbsStatsSolo := getAbsoluteStatsByIndividual(rawRecords, sliceAbsStats)
 		sliceNormStatsSolo := getNormalizedStats(sliceAbsStatsSolo)
 		sliceAbsStatsSolo = sortAbsStatsByMetric(sliceAbsStatsSolo)
@@ -915,7 +915,7 @@ func executePipeline(filename string) {
 		fmt.Println("Computed individuals' stats for " + filename)
 	}
 	if filenameContains2v2(filename) {
-		if !isValid2v2TeamName(rawRecords) {
+		if !isValid2v2Naming(rawRecords) {
 			printInvalid2v2TeamNames(rawRecords)
 			fmt.Println("Incorrect team-names! Could NOT compute individuals' stats for " + filename)
 		}
