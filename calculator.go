@@ -290,17 +290,16 @@ NOTE: Used for 2v2 games only.
 Returns true if records have correct 2v2 naming convention; false otherwise
 */
 func isValid2v2Naming(records []RawData) bool {
-	boolValidity := true
 	re := regexp.MustCompile(`[A-Z][^A-Z]*`)
 	for _, record := range records {
 		homeTeam, awayTeam := record.HomeTeam, record.AwayTeam
 		homeTeamMembers := re.FindAllString(homeTeam, -1)
 		awayTeamMembers := re.FindAllString(awayTeam, -1)
 		if len(homeTeamMembers) != 2 || len(awayTeamMembers) != 2 {
-			boolValidity = false
+			return false
 		}
 	}
-	return boolValidity
+	return true
 }
 
 
