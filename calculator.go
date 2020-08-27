@@ -87,7 +87,7 @@ NOTE: Elements of the slice returned must be in same order as the attributes def
 Used as helper function in storing data of `StatsAbs` struct to CSV file.
 */
 func (obj StatsAbs) ListStringifiedValues() []string {
-	var values []string
+	values := []string{}
 	values = append(values, strconv.Itoa(obj.Rank))
 	values = append(values, obj.Team)
 	values = append(values, strconv.Itoa(obj.GamesPlayed))
@@ -112,7 +112,7 @@ NOTE: Elements of the slice returned must be in same order as the attributes def
 Used as helper function in storing data of `StatsNorm` struct to CSV file.
 */
 func (obj StatsNorm) ListStringifiedValues() []string {
-	var values []string
+	values := []string{}
 	values = append(values, strconv.Itoa(obj.Rank))
 	values = append(values, obj.Team)
 	values = append(values, strconv.Itoa(obj.GamesPlayed))
@@ -137,7 +137,7 @@ NOTE: Elements of the slice returned must be in same order as the attributes def
 Used as helper function in storing data of `LatestForm` struct to CSV file.
 */
 func (obj LatestForm) ListStringifiedValues() []string {
-	var values []string
+	values := []string{}
 	values = append(values, strconv.Itoa(obj.Rank))
 	values = append(values, obj.Team)
 	values = append(values, obj.Form)
@@ -208,16 +208,20 @@ func stringInSlice(str string, slice []string) bool {
 
 
 /*
-Extends a slice of strings with another slice of strings, returning
-only the unique elements among the two given slices.
+Takes in an arbitrary number of slices of strings.
+Extends all given slices into one slice, and returns only the
+unique elements of the extended slice.
 */
-func extendUniqueElements(slice1 []string, slice2 []string) []string {
-	for _, element := range slice2 {
-		if !stringInSlice(element, slice1) {
-			slice1 = append(slice1, element)
+func extendSlicesKeepUniqueElements(slices... []string) []string {
+	extendedSlice := []string{}
+	for _, slice := range slices {
+		for _, element := range slice {
+			if !stringInSlice(element, extendedSlice) {
+				extendedSlice = append(extendedSlice, element)
+			}
 		}
 	}
-	return slice1
+	return extendedSlice
 }
 
 
@@ -261,12 +265,12 @@ func getUniqueTeamNames(records []RawData) []string {
 
 // Get unique individual names from slice of records of `RawData`
 func getUniqueIndividualNames(records []RawData) []string {
-	var uniqueIndividualNames []string
+	uniqueIndividualNames := []string{}
 	re := regexp.MustCompile(`[A-Z][^A-Z]*`)
 	uniqueTeams := getUniqueTeamNames(records)
 	for _, team := range uniqueTeams {
 		matchedIndividuals := re.FindAllString(team, -1)
-		uniqueIndividualNames = extendUniqueElements(uniqueIndividualNames, matchedIndividuals)
+		uniqueIndividualNames = extendSlicesKeepUniqueElements(uniqueIndividualNames, matchedIndividuals)
 	}
 	sort.Strings(uniqueIndividualNames)
 	return uniqueIndividualNames
@@ -460,7 +464,7 @@ Returns slice wherein each element of the slice is an object of the struct `Stat
 func getAbsoluteStats(records []RawData) []StatsAbs {
 	teams := getUniqueTeamNames(records)
 	bigResultGoalMargin := 3 // Will be considered as big result if GoalDifference >= this number
-	var sliceAbsoluteStats []StatsAbs
+	sliceAbsoluteStats := []StatsAbs{}
 	for _, team := range teams {
 		wins := getWinCount(records, team)
 		draws := getDrawCount(records, team)
@@ -495,7 +499,7 @@ Returns slice wherein each element of the slice is an object of the struct `Stat
 */
 func getNormalizedStats(sliceAbsStats []StatsAbs) []StatsNorm {
 	hundred := 100.0
-	var sliceNormalizedStats []StatsNorm
+	sliceNormalizedStats := []StatsNorm{}
 	for _, obj := range sliceAbsStats {
 		gamesPlayed := float64(obj.GamesPlayed)
 		tempNormalizedStats := StatsNorm{
@@ -553,7 +557,7 @@ func sortLatestFormByMetric(sliceLatestForm []LatestForm) []LatestForm {
 // NOTE: Only attaches incremental ranking, since the slice is already sorted by ranking metric/s
 // Attach ranking AFTER slice of `StatsAbs` objects is sorted based on ranking metric/s
 func attachRankingToAbsStats(sliceAbsoluteStats []StatsAbs) []StatsAbs {
-	var sliceAbsoluteStatsRanked []StatsAbs
+	sliceAbsoluteStatsRanked := []StatsAbs{}
 	for idx, tempStats := range sliceAbsoluteStats {
 		tempStats.Rank = idx + 1
 		sliceAbsoluteStatsRanked = append(sliceAbsoluteStatsRanked, tempStats)
@@ -564,7 +568,7 @@ func attachRankingToAbsStats(sliceAbsoluteStats []StatsAbs) []StatsAbs {
 
 // Attach ranking AFTER slice of `StatsNorm` objects is sorted based on ranking metric/s
 func attachRankingToNormStats(sliceNormalizedStats []StatsNorm) []StatsNorm {
-	var sliceNormalizedStatsRanked []StatsNorm
+	sliceNormalizedStatsRanked := []StatsNorm{}
 	for idx, tempStats := range sliceNormalizedStats {
 		tempStats.Rank = idx + 1
 		sliceNormalizedStatsRanked = append(sliceNormalizedStatsRanked, tempStats)
@@ -575,7 +579,7 @@ func attachRankingToNormStats(sliceNormalizedStats []StatsNorm) []StatsNorm {
 
 // Attach ranking AFTER slice of `LatestForm` objects is sorted based on ranking metric/s
 func attachRankingToLatestForm(sliceLatestForm []LatestForm) []LatestForm {
-	var sliceLatestFormRanked []LatestForm
+	sliceLatestFormRanked := []LatestForm{}
 	for idx, tempStats := range sliceLatestForm {
 		tempStats.Rank = idx + 1
 		sliceLatestFormRanked = append(sliceLatestFormRanked, tempStats)
@@ -617,7 +621,7 @@ Returns slice wherein each element of the slice is an object of the struct `Stat
 */
 func getAbsoluteStatsByIndividual(records []RawData, sliceAbsoluteTeamStats []StatsAbs) []StatsAbs {
 	individuals := getUniqueIndividualNames(records)
-	var sliceStatsAllIndividuals []StatsAbs
+	sliceStatsAllIndividuals := []StatsAbs{}
 	for _, individual := range individuals {
 		mapIndividualStats := extractIndividualStatsFromTeamStats(individual, sliceAbsoluteTeamStats)
 		objStatsByIndividual := StatsAbs{
@@ -821,7 +825,7 @@ func saveAbsToCsv(sliceData []StatsAbs, filepath string) {
     if err != nil {
         os.Exit(1)
 	}
-	var sliceStringifiedRecords [][]string // Slice of slice of strings, where each sub-slice represents a record
+	sliceStringifiedRecords := [][]string{} // Slice of slice of strings, where each sub-slice represents a record
 	statFields := structs.Names(&StatsAbs{})
 	sliceStringifiedRecords = append(sliceStringifiedRecords, statFields)
 	for _, obj := range sliceData {
@@ -841,7 +845,7 @@ func saveNormToCsv(sliceData []StatsNorm, filepath string) {
     if err != nil {
         os.Exit(1)
 	}
-	var sliceStringifiedRecords [][]string // Slice of slice of strings, where each sub-slice represents a record
+	sliceStringifiedRecords := [][]string{} // Slice of slice of strings, where each sub-slice represents a record
 	statFields := structs.Names(&StatsNorm{})
 	sliceStringifiedRecords = append(sliceStringifiedRecords, statFields)
 	for _, obj := range sliceData {
@@ -861,7 +865,7 @@ func saveLatestFormToCsv(sliceData []LatestForm, filepath string) {
     if err != nil {
         os.Exit(1)
 	}
-	var sliceStringifiedRecords [][]string // Slice of slice of strings, where each sub-slice represents a record
+	sliceStringifiedRecords := [][]string{} // Slice of slice of strings, where each sub-slice represents a record
 	statFields := structs.Names(&LatestForm{})
 	sliceStringifiedRecords = append(sliceStringifiedRecords, statFields)
 	for _, obj := range sliceData {
