@@ -209,8 +209,7 @@ func stringInSlice(str string, slice []string) bool {
 
 /*
 Takes in an arbitrary number of slices of strings.
-Extends all given slices into one slice, and returns only the
-unique elements of the extended slice.
+Extends all given slices into one slice, and returns only the unique elements of the extended slice.
 */
 func extendSlicesKeepUniqueElements(slices... []string) []string {
 	extendedSlice := []string{}
@@ -233,15 +232,6 @@ func integerify(num float64) int {
 func round(num float64, precision int) float64 {
     output := math.Pow(10, float64(precision))
     return float64(integerify(num * output)) / output
-}
-
-
-func reverseRecordsOrder(records []RawData) []RawData {
-	sliceRecordsReversed := []RawData{}
-	for i := len(records) - 1; i >= 0; i-- {
-		sliceRecordsReversed = append(sliceRecordsReversed, records[i])
-	}
-	return sliceRecordsReversed
 }
 
 
@@ -648,10 +638,10 @@ func getAbsoluteStatsByIndividual(records []RawData, sliceAbsoluteTeamStats []St
 
 // Gets string of WLD (Wins, Losses, Draws) representation of `LatestForm` for Teams
 func representLatestForm(records []RawData, team string, nLatestGames int) string {
-	recordsReversed := reverseRecordsOrder(records)
 	representationLatestForm := ""
 	numGamesConsidered := 0
-	for _, match := range recordsReversed {
+	for i := len(records) - 1; i >= 0; i-- {
+		match := records[i]
 		if team == match.HomeTeam {
 			if match.HomeGoals > match.AwayGoals {
 				representationLatestForm += "W"
@@ -681,10 +671,10 @@ func representLatestForm(records []RawData, team string, nLatestGames int) strin
 
 // Gets string of WLD (Wins, Losses, Draws) representation of `LatestForm` for Individuals
 func representLatestFormSolo(records []RawData, individual string, nLatestGames int) string {
-	recordsReversed := reverseRecordsOrder(records)
 	representationLatestForm := ""
 	numGamesConsidered := 0
-	for _, match := range recordsReversed {
+	for i := len(records) - 1; i >= 0; i-- {
+		match := records[i]
 		if individualInTeam(individual, match.HomeTeam) {
 			if match.HomeGoals > match.AwayGoals {
 				representationLatestForm += "W"
@@ -714,10 +704,10 @@ func representLatestFormSolo(records []RawData, individual string, nLatestGames 
 
 // Get latest PPG info for Teams. Returns info about "LatestPPG" and "NumGamesConsidered"
 func getLatestPpgInfo(records []RawData, team string, nLatestGames int) map[string]float64 {
-	recordsReversed := reverseRecordsOrder(records)
 	mapLatestPpgInfo := map[string]float64{}
 	wins, draws, numGamesConsidered := 0, 0, 0
-	for _, match := range recordsReversed {
+	for i := len(records) - 1; i >= 0; i-- {
+		match := records[i]
 		if team == match.HomeTeam {
 			if match.HomeGoals > match.AwayGoals {
 				wins ++
@@ -747,10 +737,10 @@ func getLatestPpgInfo(records []RawData, team string, nLatestGames int) map[stri
 
 // Get latest PPG info for Individuals. Returns info about "LatestPPG" and "NumGamesConsidered"
 func getLatestPpgInfoSolo(records []RawData, individual string, nLatestGames int) map[string]float64 {
-	recordsReversed := reverseRecordsOrder(records)
 	mapLatestPpgInfoSolo := map[string]float64{}
 	wins, draws, numGamesConsidered := 0, 0, 0
-	for _, match := range recordsReversed {
+	for i := len(records) - 1; i >= 0; i-- {
+		match := records[i]
 		if individualInTeam(individual, match.HomeTeam) {
 			if match.HomeGoals > match.AwayGoals {
 				wins ++
