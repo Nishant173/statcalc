@@ -279,6 +279,28 @@ func individualInTeam(individual string, team string) bool {
 }
 
 
+// Returns false if `HomeTeam` name is same as `AwayTeam` name; True otherwise
+func isHomeSameAsAway(records []RawData) bool {
+	for _, record := range records {
+		if record.HomeTeam == record.AwayTeam {
+			return true
+		}
+	}
+	return false
+}
+
+
+func printSameHomeAndAwayNames(records []RawData) {
+	for idx, record := range records {
+		homeTeam, awayTeam := record.HomeTeam, record.AwayTeam
+		if homeTeam == awayTeam {
+			idxStringified := strconv.Itoa(idx + 1)
+			fmt.Println("Error - HomeTeam is same as AwayTeam at record number " + idxStringified + ". Team-names given: " + homeTeam + ", " + awayTeam)
+		}
+	}
+}
+
+
 /*
 NOTE: Used for 2v2 games only.
 Returns true if records have correct 2v2 naming convention; false otherwise
@@ -894,6 +916,13 @@ func executePipeline(filename string) {
 	rawRecords := readRawRecordsFromCsv(pathRawData)
 	nLatestGames := 10 // Number of latest games to consider for LatestForm
 
+	// Data validation - Check if `HomeTeam` name is same as `AwayTeam` name
+	if isHomeSameAsAway(rawRecords) {
+		printSameHomeAndAwayNames(rawRecords)
+		fmt.Println("Incorrect team-names for '" + filename + "'. Check your data!")
+		return
+	}
+
 	// ########## Teams stats ##########
 	sliceAbsStats := getAbsoluteStats(rawRecords)
 	sliceNormStats := getNormalizedStats(sliceAbsStats)
@@ -909,7 +938,7 @@ func executePipeline(filename string) {
 	saveAbsToCsv(sliceAbsStats, pathResultsFolder + "/" + filenameWithoutExt + " - Teams - Absolute Stats.csv")
 	saveNormToCsv(sliceNormStats, pathResultsFolder +  "/" + filenameWithoutExt + " - Teams - Normalized Stats.csv")
 	saveLatestFormToCsv(sliceLatestForm, pathResultsFolder +  "/" + filenameWithoutExt + " - Teams - Latest Form.csv")
-	fmt.Println("Computed teams' stats for " + filename)
+	fmt.Println("Computed teams' stats for '" + filename + "'")
 	
 	// ########## Individuals' stats ##########
 	if filenameContains2v2(filename) && isValid2v2Naming(rawRecords) {
@@ -927,12 +956,12 @@ func executePipeline(filename string) {
 		saveAbsToCsv(sliceAbsStatsSolo, pathResultsFolder +  "/" + filenameWithoutExt + " - Individuals - Absolute Stats.csv")
 		saveNormToCsv(sliceNormStatsSolo, pathResultsFolder +  "/" + filenameWithoutExt + " - Individuals - Normalized Stats.csv")
 		saveLatestFormToCsv(sliceLatestFormSolo, pathResultsFolder +  "/" + filenameWithoutExt + " - Individuals - Latest Form.csv")
-		fmt.Println("Computed individuals' stats for " + filename)
+		fmt.Println("Computed individuals' stats for '" + filename + "'")
 	}
 	if filenameContains2v2(filename) {
 		if !isValid2v2Naming(rawRecords) {
 			printInvalid2v2TeamNames(rawRecords)
-			fmt.Println("Incorrect team-names! Could NOT compute individuals' stats for " + filename)
+			fmt.Println("Incorrect team-names! Could NOT compute individuals' stats for '" + filename + "'")
 		}
 	}
 }
