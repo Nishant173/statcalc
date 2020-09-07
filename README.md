@@ -1,5 +1,5 @@
 # statcalc
-Stat calculator in Golang
+Stat calculator in Golang - Reads raw data from CSV files and transforms it into valuable insights
 
 ## Usage
 - Drop CSV data files into the `data` folder. It **must** have the columns `HomeTeam HomeGoals AwayGoals AwayTeam` in this particular order (but the column names can be different).
