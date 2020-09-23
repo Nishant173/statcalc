@@ -15,7 +15,7 @@ import (
 
 	"github.com/fatih/structs"
 )
-// var
+
 // Constants - Paths to data (source) and results (destination) folders
 const (
 	pathDataFolder    = "data"
