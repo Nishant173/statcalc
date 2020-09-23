@@ -15,14 +15,12 @@ import (
 
 	"github.com/fatih/structs"
 )
-
-
+// var
 // Constants - Paths to data (source) and results (destination) folders
 const (
-	pathDataFolder = "data"
+	pathDataFolder    = "data"
 	pathResultsFolder = "results"
 )
-
 
 // Struct to store raw data
 type RawData struct {
@@ -32,54 +30,50 @@ type RawData struct {
 	AwayTeam  string
 }
 
-
 // Struct to store absolute tabular statistics
 type StatsAbs struct {
-	Rank int
-	Team string
-	GamesPlayed int
-	Points int
-	GoalDifference int
-	Wins int
-	Losses int
-	Draws int
-	GoalsScored int
-	GoalsAllowed int
-	CleanSheets int
+	Rank               int
+	Team               string
+	GamesPlayed        int
+	Points             int
+	GoalDifference     int
+	Wins               int
+	Losses             int
+	Draws              int
+	GoalsScored        int
+	GoalsAllowed       int
+	CleanSheets        int
 	CleanSheetsAgainst int
-	BigWins int
-	BigLosses int
+	BigWins            int
+	BigLosses          int
 }
-
 
 // Struct to store normalized tabular statistics i.e; StatAbs / GamesPlayed
 type StatsNorm struct {
-	Rank int
-	Team string
+	Rank        int
+	Team        string
 	GamesPlayed int
-	PPG float64
-	GDPG float64
-	WinPct float64
-	LossPct float64
-	DrawPct float64
-	GSPG float64
-	GAPG float64
-	CsPct float64
-	CsaPct float64
-	BigWinPct float64
-	BigLossPct float64
+	PPG         float64
+	GDPG        float64
+	WinPct      float64
+	LossPct     float64
+	DrawPct     float64
+	GSPG        float64
+	GAPG        float64
+	CsPct       float64
+	CsaPct      float64
+	BigWinPct   float64
+	BigLossPct  float64
 }
-
 
 // Struct to store latest form (decided by latest PPG)
 type LatestForm struct {
-	Rank int
-	Team string
-	Form string // WLD (Wins, Losses, Draws) representation of latest form
-	LatestPPG float64
+	Rank               int
+	Team               string
+	Form               string // WLD (Wins, Losses, Draws) representation of latest form
+	LatestPPG          float64
 	NumGamesConsidered int
 }
-
 
 /*
 Method that gets slice of stringified elements of `StatsAbs` struct (by record).
@@ -105,7 +99,6 @@ func (obj StatsAbs) ListStringifiedValues() []string {
 	return values
 }
 
-
 /*
 Method that gets slice of stringified elements of `StatsNorm` struct (by record).
 NOTE: Elements of the slice returned must be in same order as the attributes defined in the struct.
@@ -130,7 +123,6 @@ func (obj StatsNorm) ListStringifiedValues() []string {
 	return values
 }
 
-
 /*
 Method that gets slice of stringified elements of `LatestForm` struct (by record).
 NOTE: Elements of the slice returned must be in same order as the attributes defined in the struct.
@@ -146,7 +138,6 @@ func (obj LatestForm) ListStringifiedValues() []string {
 	return values
 }
 
-
 // Read CSV file having columns "HomeTeam, HomeGoals, AwayGoals, AwayTeam" in that order
 func readRawRecordsFromCsv(filepath string) []RawData {
 	csvfile, err := os.Open(filepath)
@@ -155,9 +146,9 @@ func readRawRecordsFromCsv(filepath string) []RawData {
 	}
 	r := csv.NewReader(csvfile)
 	lineCount := 0
-	var records []RawData
+	records := []RawData{}
 	for {
-		lineCount ++
+		lineCount++
 		record, err := r.Read()
 		if err == io.EOF {
 			break
@@ -175,10 +166,10 @@ func readRawRecordsFromCsv(filepath string) []RawData {
 				log.Fatalln("Error while converting AwayGoals to int", strConvErrAway)
 			}
 			record := RawData{
-				HomeTeam: record[0],
+				HomeTeam:  record[0],
 				HomeGoals: homeGoals,
 				AwayGoals: awayGoals,
-				AwayTeam: record[3],
+				AwayTeam:  record[3],
 			}
 			records = append(records, record)
 		}
@@ -186,26 +177,22 @@ func readRawRecordsFromCsv(filepath string) []RawData {
 	return records
 }
 
-
 func removeExtension(filenameWithExt string) string {
 	return strings.TrimSuffix(filenameWithExt, path.Ext(filenameWithExt))
 }
-
 
 func filenameContains2v2(filenameWithExt string) bool {
 	return strings.Contains(strings.ToLower(filenameWithExt), "2v2")
 }
 
-
 func stringInSlice(str string, slice []string) bool {
-    for _, element := range slice {
-        if element == str {
-            return true
-        }
-    }
-    return false
+	for _, element := range slice {
+		if element == str {
+			return true
+		}
+	}
+	return false
 }
-
 
 /*
 Takes in an arbitrary number of slices of strings.
@@ -223,21 +210,18 @@ func extendSlicesKeepUniqueElements(slices... []string) []string {
 	return extendedSlice
 }
 
-
 func integerify(num float64) int {
-    return int(num + math.Copysign(0.5, num))
+	return int(num + math.Copysign(0.5, num))
 }
-
 
 func round(num float64, precision int) float64 {
-    output := math.Pow(10, float64(precision))
-    return float64(integerify(num * output)) / output
+	output := math.Pow(10, float64(precision))
+	return float64(integerify(num * output)) / output
 }
-
 
 // Get unique team names from slice of records of `RawData`
 func getUniqueTeamNames(records []RawData) []string {
-	var uniqueTeamNames []string
+	uniqueTeamNames := []string{}
 	for _, record := range records {
 		homeTeam := record.HomeTeam
 		awayTeam := record.AwayTeam
@@ -252,7 +236,6 @@ func getUniqueTeamNames(records []RawData) []string {
 	return uniqueTeamNames
 }
 
-
 // Get unique individual names from slice of records of `RawData`
 func getUniqueIndividualNames(records []RawData) []string {
 	uniqueIndividualNames := []string{}
@@ -266,7 +249,6 @@ func getUniqueIndividualNames(records []RawData) []string {
 	return uniqueIndividualNames
 }
 
-
 func individualInTeam(individual string, team string) bool {
 	re := regexp.MustCompile(`[A-Z][^A-Z]*`)
 	teamMembers := re.FindAllString(team, -1) // Slice of team members
@@ -278,7 +260,6 @@ func individualInTeam(individual string, team string) bool {
 	return false
 }
 
-
 // Returns false if `HomeTeam` name is same as `AwayTeam` name; True otherwise
 func isHomeSameAsAway(records []RawData) bool {
 	for _, record := range records {
@@ -289,7 +270,6 @@ func isHomeSameAsAway(records []RawData) bool {
 	return false
 }
 
-
 func printSameHomeAndAwayNames(records []RawData) {
 	for idx, record := range records {
 		homeTeam, awayTeam := record.HomeTeam, record.AwayTeam
@@ -299,7 +279,6 @@ func printSameHomeAndAwayNames(records []RawData) {
 		}
 	}
 }
-
 
 /*
 NOTE: Used for 2v2 games only.
@@ -318,7 +297,6 @@ func isValid2v2Naming(records []RawData) bool {
 	return true
 }
 
-
 func printInvalid2v2TeamNames(records []RawData) {
 	re := regexp.MustCompile(`[A-Z][^A-Z]*`)
 	for idx, record := range records {
@@ -332,58 +310,53 @@ func printInvalid2v2TeamNames(records []RawData) {
 	}
 }
 
-
 func getGamesPlayedCount(records []RawData, team string) int {
 	count := 0
 	for _, record := range records {
 		if record.HomeTeam == team {
-			count ++
+			count++
 		} else if record.AwayTeam == team {
-			count ++
+			count++
 		}
 	}
 	return count
 }
-
 
 func getWinCount(records []RawData, team string) int {
 	count := 0
 	for _, record := range records {
 		if record.HomeTeam == team && record.HomeGoals > record.AwayGoals {
-			count ++
+			count++
 		} else if record.AwayTeam == team && record.AwayGoals > record.HomeGoals {
-			count ++
+			count++
 		}
 	}
 	return count
 }
-
 
 func getLossCount(records []RawData, team string) int {
 	count := 0
 	for _, record := range records {
 		if record.HomeTeam == team && record.HomeGoals < record.AwayGoals {
-			count ++
+			count++
 		} else if record.AwayTeam == team && record.AwayGoals < record.HomeGoals {
-			count ++
+			count++
 		}
 	}
 	return count
 }
-
 
 func getDrawCount(records []RawData, team string) int {
 	count := 0
 	for _, record := range records {
 		if record.HomeTeam == team && record.HomeGoals == record.AwayGoals {
-			count ++
+			count++
 		} else if record.AwayTeam == team && record.AwayGoals == record.HomeGoals {
-			count ++
+			count++
 		}
 	}
 	return count
 }
-
 
 func getGoalsScored(records []RawData, team string) int {
 	goalsScored := 0
@@ -397,7 +370,6 @@ func getGoalsScored(records []RawData, team string) int {
 	return goalsScored
 }
 
-
 func getGoalsAllowed(records []RawData, team string) int {
 	goalsAllowed := 0
 	for _, record := range records {
@@ -410,32 +382,29 @@ func getGoalsAllowed(records []RawData, team string) int {
 	return goalsAllowed
 }
 
-
 func getCleanSheets(records []RawData, team string) int {
 	cleanSheetCount := 0
 	for _, record := range records {
 		if record.HomeTeam == team && record.AwayGoals == 0 {
-			cleanSheetCount ++
+			cleanSheetCount++
 		} else if record.AwayTeam == team && record.HomeGoals == 0 {
-			cleanSheetCount ++
+			cleanSheetCount++
 		}
 	}
 	return cleanSheetCount
 }
 
-
 func getCleanSheetsAgainst(records []RawData, team string) int {
 	cleanSheetAgainstCount := 0
 	for _, record := range records {
 		if record.HomeTeam == team && record.HomeGoals == 0 {
-			cleanSheetAgainstCount ++
+			cleanSheetAgainstCount++
 		} else if record.AwayTeam == team && record.AwayGoals == 0 {
-			cleanSheetAgainstCount ++
+			cleanSheetAgainstCount++
 		}
 	}
 	return cleanSheetAgainstCount
 }
-
 
 func getBigWinCount(records []RawData, team string, margin int) int {
 	bigWinCount := 0
@@ -444,14 +413,13 @@ func getBigWinCount(records []RawData, team string, margin int) int {
 		ag := record.AwayGoals
 		goalMargin := int(math.Abs(float64(hg - ag)))
 		if record.HomeTeam == team && hg > ag && goalMargin >= margin {
-			bigWinCount ++
+			bigWinCount++
 		} else if record.AwayTeam == team && ag > hg && goalMargin >= margin {
-			bigWinCount ++
+			bigWinCount++
 		}
 	}
 	return bigWinCount
 }
-
 
 func getBigLossCount(records []RawData, team string, margin int) int {
 	bigLossCount := 0
@@ -460,14 +428,13 @@ func getBigLossCount(records []RawData, team string, margin int) int {
 		ag := record.AwayGoals
 		goalMargin := int(math.Abs(float64(hg - ag)))
 		if record.HomeTeam == team && hg < ag && goalMargin >= margin {
-			bigLossCount ++
+			bigLossCount++
 		} else if record.AwayTeam == team && ag < hg && goalMargin >= margin {
-			bigLossCount ++
+			bigLossCount++
 		}
 	}
 	return bigLossCount
 }
-
 
 /*
 Gets slice of absolute stats from raw records.
@@ -485,25 +452,24 @@ func getAbsoluteStats(records []RawData) []StatsAbs {
 		gd := gs - ga
 		points := 3 * wins + draws
 		tempAbsoluteStats := StatsAbs{
-			Team: team,
-			GamesPlayed: getGamesPlayedCount(records, team),
-			Points: points,
-			GoalDifference: gd,
-			Wins: wins,
-			Losses: getLossCount(records, team),
-			Draws: draws,
-			GoalsScored: gs,
-			GoalsAllowed: ga,
-			CleanSheets: getCleanSheets(records, team),
+			Team:               team,
+			GamesPlayed:        getGamesPlayedCount(records, team),
+			Points:             points,
+			GoalDifference:     gd,
+			Wins:               wins,
+			Losses:             getLossCount(records, team),
+			Draws:              draws,
+			GoalsScored:        gs,
+			GoalsAllowed:       ga,
+			CleanSheets:        getCleanSheets(records, team),
 			CleanSheetsAgainst: getCleanSheetsAgainst(records, team),
-			BigWins: getBigWinCount(records, team, bigResultGoalMargin),
-			BigLosses: getBigLossCount(records, team, bigResultGoalMargin),
+			BigWins:            getBigWinCount(records, team, bigResultGoalMargin),
+			BigLosses:          getBigLossCount(records, team, bigResultGoalMargin),
 		}
 		sliceAbsoluteStats = append(sliceAbsoluteStats, tempAbsoluteStats)
 	}
 	return sliceAbsoluteStats
 }
-
 
 /*
 Gets slice of normalized stats from slice of absolute stats.
@@ -515,25 +481,24 @@ func getNormalizedStats(sliceAbsStats []StatsAbs) []StatsNorm {
 	for _, obj := range sliceAbsStats {
 		gamesPlayed := float64(obj.GamesPlayed)
 		tempNormalizedStats := StatsNorm{
-			Team: obj.Team,
+			Team:        obj.Team,
 			GamesPlayed: obj.GamesPlayed,
-			PPG: round(float64(obj.Points) / gamesPlayed, 4),
-			GDPG: round(float64(obj.GoalDifference) / gamesPlayed, 3),
-			WinPct: round(float64(obj.Wins) * hundred / gamesPlayed, 2),
-			LossPct: round(float64(obj.Losses) * hundred / gamesPlayed, 2),
-			DrawPct: round(float64(obj.Draws) * hundred / gamesPlayed, 2),
-			GSPG: round(float64(obj.GoalsScored) / gamesPlayed, 3),
-			GAPG: round(float64(obj.GoalsAllowed) / gamesPlayed, 3),
-			CsPct: round(float64(obj.CleanSheets) * hundred / gamesPlayed, 2),
-			CsaPct: round(float64(obj.CleanSheetsAgainst) * hundred / gamesPlayed, 2),
-			BigWinPct: round(float64(obj.BigWins) * hundred / gamesPlayed, 2),
-			BigLossPct: round(float64(obj.BigLosses) * hundred / gamesPlayed, 2),
+			PPG:         round(float64(obj.Points)/gamesPlayed, 4),
+			GDPG:        round(float64(obj.GoalDifference)/gamesPlayed, 3),
+			WinPct:      round(float64(obj.Wins)*hundred/gamesPlayed, 2),
+			LossPct:     round(float64(obj.Losses)*hundred/gamesPlayed, 2),
+			DrawPct:     round(float64(obj.Draws)*hundred/gamesPlayed, 2),
+			GSPG:        round(float64(obj.GoalsScored)/gamesPlayed, 3),
+			GAPG:        round(float64(obj.GoalsAllowed)/gamesPlayed, 3),
+			CsPct:       round(float64(obj.CleanSheets)*hundred/gamesPlayed, 2),
+			CsaPct:      round(float64(obj.CleanSheetsAgainst)*hundred/gamesPlayed, 2),
+			BigWinPct:   round(float64(obj.BigWins)*hundred/gamesPlayed, 2),
+			BigLossPct:  round(float64(obj.BigLosses)*hundred/gamesPlayed, 2),
 		}
 		sliceNormalizedStats = append(sliceNormalizedStats, tempNormalizedStats)
 	}
 	return sliceNormalizedStats
 }
-
 
 // Sorts absolute stats based on certain metric/s
 func sortAbsStatsByMetric(sliceAbsoluteStats []StatsAbs) []StatsAbs {
@@ -547,7 +512,6 @@ func sortAbsStatsByMetric(sliceAbsoluteStats []StatsAbs) []StatsAbs {
 	return sliceAbsoluteStats
 }
 
-
 // Sorts normalized stats based on certain metric/s
 func sortNormStatsByMetric(sliceNormalizedStats []StatsNorm) []StatsNorm {
 	sort.SliceStable(sliceNormalizedStats, func(i, j int) bool {
@@ -556,7 +520,6 @@ func sortNormStatsByMetric(sliceNormalizedStats []StatsNorm) []StatsNorm {
 	return sliceNormalizedStats
 }
 
-
 // Sorts latest form based on certain metric/s
 func sortLatestFormByMetric(sliceLatestForm []LatestForm) []LatestForm {
 	sort.SliceStable(sliceLatestForm, func(i, j int) bool {
@@ -564,7 +527,6 @@ func sortLatestFormByMetric(sliceLatestForm []LatestForm) []LatestForm {
 	})
 	return sliceLatestForm
 }
-
 
 // NOTE: Only attaches incremental ranking, since the slice is already sorted by ranking metric/s
 // Attach ranking AFTER slice of `StatsAbs` objects is sorted based on ranking metric/s
@@ -577,7 +539,6 @@ func attachRankingToAbsStats(sliceAbsoluteStats []StatsAbs) []StatsAbs {
 	return sliceAbsoluteStatsRanked
 }
 
-
 // Attach ranking AFTER slice of `StatsNorm` objects is sorted based on ranking metric/s
 func attachRankingToNormStats(sliceNormalizedStats []StatsNorm) []StatsNorm {
 	sliceNormalizedStatsRanked := []StatsNorm{}
@@ -588,7 +549,6 @@ func attachRankingToNormStats(sliceNormalizedStats []StatsNorm) []StatsNorm {
 	return sliceNormalizedStatsRanked
 }
 
-
 // Attach ranking AFTER slice of `LatestForm` objects is sorted based on ranking metric/s
 func attachRankingToLatestForm(sliceLatestForm []LatestForm) []LatestForm {
 	sliceLatestFormRanked := []LatestForm{}
@@ -598,7 +558,6 @@ func attachRankingToLatestForm(sliceLatestForm []LatestForm) []LatestForm {
 	}
 	return sliceLatestFormRanked
 }
-
 
 /*
 [Helper function]
@@ -626,7 +585,6 @@ func extractIndividualStatsFromTeamStats(individual string, sliceTeamAbsStats []
 	return mapStatsByIndividual
 }
 
-
 /*
 Gets slice of absolute stats of individuals from `RawData` records, `StatsAbs` of teams.
 Returns slice wherein each element of the slice is an object of the struct `StatsAbs`
@@ -637,26 +595,25 @@ func getAbsoluteStatsByIndividual(records []RawData, sliceAbsoluteTeamStats []St
 	for _, individual := range individuals {
 		mapIndividualStats := extractIndividualStatsFromTeamStats(individual, sliceAbsoluteTeamStats)
 		objStatsByIndividual := StatsAbs{
-			Rank: 0,
-			Team: individual,
-			GamesPlayed: mapIndividualStats["GamesPlayed"],
-			Points: mapIndividualStats["Points"],
-			GoalDifference: mapIndividualStats["GoalDifference"],
-			Wins: mapIndividualStats["Wins"],
-			Losses: mapIndividualStats["Losses"],
-			Draws: mapIndividualStats["Draws"],
-			GoalsScored: mapIndividualStats["GoalsScored"],
-			GoalsAllowed: mapIndividualStats["GoalsAllowed"],
-			CleanSheets: mapIndividualStats["CleanSheets"],
+			Rank:               0,
+			Team:               individual,
+			GamesPlayed:        mapIndividualStats["GamesPlayed"],
+			Points:             mapIndividualStats["Points"],
+			GoalDifference:     mapIndividualStats["GoalDifference"],
+			Wins:               mapIndividualStats["Wins"],
+			Losses:             mapIndividualStats["Losses"],
+			Draws:              mapIndividualStats["Draws"],
+			GoalsScored:        mapIndividualStats["GoalsScored"],
+			GoalsAllowed:       mapIndividualStats["GoalsAllowed"],
+			CleanSheets:        mapIndividualStats["CleanSheets"],
 			CleanSheetsAgainst: mapIndividualStats["CleanSheetsAgainst"],
-			BigWins: mapIndividualStats["BigWins"],
-			BigLosses: mapIndividualStats["BigLosses"],
+			BigWins:            mapIndividualStats["BigWins"],
+			BigLosses:          mapIndividualStats["BigLosses"],
 		}
 		sliceStatsAllIndividuals = append(sliceStatsAllIndividuals, objStatsByIndividual)
 	}
 	return sliceStatsAllIndividuals
 }
-
 
 // Gets string of WLD (Wins, Losses, Draws) representation of `LatestForm` for Teams
 func representLatestForm(records []RawData, team string, nLatestGames int) string {
@@ -672,7 +629,7 @@ func representLatestForm(records []RawData, team string, nLatestGames int) strin
 			} else if match.HomeGoals < match.AwayGoals {
 				representationLatestForm += "L"
 			}
-			numGamesConsidered ++
+			numGamesConsidered++
 		} else if team == match.AwayTeam {
 			if match.AwayGoals > match.HomeGoals {
 				representationLatestForm += "W"
@@ -681,7 +638,7 @@ func representLatestForm(records []RawData, team string, nLatestGames int) strin
 			} else if match.AwayGoals < match.HomeGoals {
 				representationLatestForm += "L"
 			}
-			numGamesConsidered ++
+			numGamesConsidered++
 		}
 		if numGamesConsidered == nLatestGames {
 			break
@@ -689,7 +646,6 @@ func representLatestForm(records []RawData, team string, nLatestGames int) strin
 	}
 	return representationLatestForm
 }
-
 
 // Gets string of WLD (Wins, Losses, Draws) representation of `LatestForm` for Individuals
 func representLatestFormSolo(records []RawData, individual string, nLatestGames int) string {
@@ -705,7 +661,7 @@ func representLatestFormSolo(records []RawData, individual string, nLatestGames 
 			} else if match.HomeGoals < match.AwayGoals {
 				representationLatestForm += "L"
 			}
-			numGamesConsidered ++
+			numGamesConsidered++
 		} else if individualInTeam(individual, match.AwayTeam) {
 			if match.AwayGoals > match.HomeGoals {
 				representationLatestForm += "W"
@@ -714,7 +670,7 @@ func representLatestFormSolo(records []RawData, individual string, nLatestGames 
 			} else if match.AwayGoals < match.HomeGoals {
 				representationLatestForm += "L"
 			}
-			numGamesConsidered ++
+			numGamesConsidered++
 		}
 		if numGamesConsidered == nLatestGames {
 			break
@@ -722,7 +678,6 @@ func representLatestFormSolo(records []RawData, individual string, nLatestGames 
 	}
 	return representationLatestForm
 }
-
 
 // Get latest PPG info for Teams. Returns info about "LatestPPG" and "NumGamesConsidered"
 func getLatestPpgInfo(records []RawData, team string, nLatestGames int) map[string]float64 {
@@ -732,18 +687,18 @@ func getLatestPpgInfo(records []RawData, team string, nLatestGames int) map[stri
 		match := records[i]
 		if team == match.HomeTeam {
 			if match.HomeGoals > match.AwayGoals {
-				wins ++
+				wins++
 			} else if match.HomeGoals == match.AwayGoals {
-				draws ++
+				draws++
 			}
-			numGamesConsidered ++
+			numGamesConsidered++
 		} else if team == match.AwayTeam {
 			if match.AwayGoals > match.HomeGoals {
-				wins ++
+				wins++
 			} else if match.HomeGoals == match.AwayGoals {
-				draws ++
+				draws++
 			}
-			numGamesConsidered ++
+			numGamesConsidered++
 		}
 		if numGamesConsidered == nLatestGames {
 			break
@@ -756,7 +711,6 @@ func getLatestPpgInfo(records []RawData, team string, nLatestGames int) map[stri
 	return mapLatestPpgInfo
 }
 
-
 // Get latest PPG info for Individuals. Returns info about "LatestPPG" and "NumGamesConsidered"
 func getLatestPpgInfoSolo(records []RawData, individual string, nLatestGames int) map[string]float64 {
 	mapLatestPpgInfoSolo := map[string]float64{}
@@ -765,18 +719,18 @@ func getLatestPpgInfoSolo(records []RawData, individual string, nLatestGames int
 		match := records[i]
 		if individualInTeam(individual, match.HomeTeam) {
 			if match.HomeGoals > match.AwayGoals {
-				wins ++
+				wins++
 			} else if match.HomeGoals == match.AwayGoals {
-				draws ++
+				draws++
 			}
-			numGamesConsidered ++
+			numGamesConsidered++
 		} else if individualInTeam(individual, match.AwayTeam) {
 			if match.AwayGoals > match.HomeGoals {
-				wins ++
+				wins++
 			} else if match.HomeGoals == match.AwayGoals {
-				draws ++
+				draws++
 			}
-			numGamesConsidered ++
+			numGamesConsidered++
 		}
 		if numGamesConsidered == nLatestGames {
 			break
@@ -789,7 +743,6 @@ func getLatestPpgInfoSolo(records []RawData, individual string, nLatestGames int
 	return mapLatestPpgInfoSolo
 }
 
-
 /*
 Get latest form of team/individual in last `nLatestGames` games. Metric used is PPG (Points per game).
 NOTE: Assumes that the records are sorted in ascending order of time of occurence of matches.
@@ -800,10 +753,10 @@ func getLatestForm(records []RawData, nLatestGames int) []LatestForm {
 	for _, team := range teams {
 		mapLatestPpgInfo := getLatestPpgInfo(records, team, nLatestGames)
 		tempObj := LatestForm{
-			Rank: 0,
-			Team: team,
-			Form: representLatestForm(records, team, nLatestGames),
-			LatestPPG: mapLatestPpgInfo["LatestPPG"],
+			Rank:               0,
+			Team:               team,
+			Form:               representLatestForm(records, team, nLatestGames),
+			LatestPPG:          mapLatestPpgInfo["LatestPPG"],
 			NumGamesConsidered: int(mapLatestPpgInfo["NumGamesConsidered"]),
 		}
 		sliceLatestFormData = append(sliceLatestFormData, tempObj)
@@ -811,17 +764,16 @@ func getLatestForm(records []RawData, nLatestGames int) []LatestForm {
 	return sliceLatestFormData
 }
 
-
 func getLatestFormSolo(records []RawData, nLatestGames int) []LatestForm {
 	sliceLatestFormData := []LatestForm{}
 	individuals := getUniqueIndividualNames(records)
 	for _, individual := range individuals {
 		mapLatestPpgInfoSolo := getLatestPpgInfoSolo(records, individual, nLatestGames)
 		tempObj := LatestForm{
-			Rank: 0,
-			Team: individual,
-			Form: representLatestFormSolo(records, individual, nLatestGames),
-			LatestPPG: mapLatestPpgInfoSolo["LatestPPG"],
+			Rank:               0,
+			Team:               individual,
+			Form:               representLatestFormSolo(records, individual, nLatestGames),
+			LatestPPG:          mapLatestPpgInfoSolo["LatestPPG"],
 			NumGamesConsidered: int(mapLatestPpgInfoSolo["NumGamesConsidered"]),
 		}
 		sliceLatestFormData = append(sliceLatestFormData, tempObj)
@@ -829,13 +781,12 @@ func getLatestFormSolo(records []RawData, nLatestGames int) []LatestForm {
 	return sliceLatestFormData
 }
 
-
 // Saves slice having objects of `StatsAbs` struct to CSV file
 func saveAbsToCsv(sliceData []StatsAbs, filepath string) {
-    file, err := os.OpenFile(filepath, os.O_CREATE|os.O_WRONLY, 0777)
+	file, err := os.OpenFile(filepath, os.O_CREATE|os.O_WRONLY, 0777)
 	defer file.Close()
-    if err != nil {
-        os.Exit(1)
+	if err != nil {
+		os.Exit(1)
 	}
 	sliceStringifiedRecords := [][]string{} // Slice of slice of strings, where each sub-slice represents a record
 	statFields := structs.Names(&StatsAbs{})
@@ -844,18 +795,17 @@ func saveAbsToCsv(sliceData []StatsAbs, filepath string) {
 		record := obj.ListStringifiedValues()
 		sliceStringifiedRecords = append(sliceStringifiedRecords, record)
 	}
-    csvWriter := csv.NewWriter(file)
-    csvWriter.WriteAll(sliceStringifiedRecords)
-    csvWriter.Flush()
+	csvWriter := csv.NewWriter(file)
+	csvWriter.WriteAll(sliceStringifiedRecords)
+	csvWriter.Flush()
 }
-
 
 // Saves slice having objects of `StatsNorm` struct to CSV file
 func saveNormToCsv(sliceData []StatsNorm, filepath string) {
-    file, err := os.OpenFile(filepath, os.O_CREATE|os.O_WRONLY, 0777)
+	file, err := os.OpenFile(filepath, os.O_CREATE|os.O_WRONLY, 0777)
 	defer file.Close()
-    if err != nil {
-        os.Exit(1)
+	if err != nil {
+		os.Exit(1)
 	}
 	sliceStringifiedRecords := [][]string{} // Slice of slice of strings, where each sub-slice represents a record
 	statFields := structs.Names(&StatsNorm{})
@@ -864,18 +814,17 @@ func saveNormToCsv(sliceData []StatsNorm, filepath string) {
 		record := obj.ListStringifiedValues()
 		sliceStringifiedRecords = append(sliceStringifiedRecords, record)
 	}
-    csvWriter := csv.NewWriter(file)
-    csvWriter.WriteAll(sliceStringifiedRecords)
-    csvWriter.Flush()
+	csvWriter := csv.NewWriter(file)
+	csvWriter.WriteAll(sliceStringifiedRecords)
+	csvWriter.Flush()
 }
-
 
 // Saves slice having objects of `LatestForm` struct to CSV file
 func saveLatestFormToCsv(sliceData []LatestForm, filepath string) {
-    file, err := os.OpenFile(filepath, os.O_CREATE|os.O_WRONLY, 0777)
+	file, err := os.OpenFile(filepath, os.O_CREATE|os.O_WRONLY, 0777)
 	defer file.Close()
-    if err != nil {
-        os.Exit(1)
+	if err != nil {
+		os.Exit(1)
 	}
 	sliceStringifiedRecords := [][]string{} // Slice of slice of strings, where each sub-slice represents a record
 	statFields := structs.Names(&LatestForm{})
@@ -884,30 +833,28 @@ func saveLatestFormToCsv(sliceData []LatestForm, filepath string) {
 		record := obj.ListStringifiedValues()
 		sliceStringifiedRecords = append(sliceStringifiedRecords, record)
 	}
-    csvWriter := csv.NewWriter(file)
-    csvWriter.WriteAll(sliceStringifiedRecords)
-    csvWriter.Flush()
+	csvWriter := csv.NewWriter(file)
+	csvWriter.WriteAll(sliceStringifiedRecords)
+	csvWriter.Flush()
 }
-
 
 // Gets slice of all filenames from data source
 func getListOfDataFilenames() []string {
-    f, err := os.Open(pathDataFolder)
-    if err != nil {
-        log.Fatal(err)
-    }
-    files, err := f.Readdir(-1)
-    f.Close()
-    if err != nil {
-        log.Fatal(err)
+	f, err := os.Open(pathDataFolder)
+	if err != nil {
+		log.Fatal(err)
+	}
+	files, err := f.Readdir(-1)
+	f.Close()
+	if err != nil {
+		log.Fatal(err)
 	}
 	filenamesDesired := []string{}
-    for _, file := range files {
+	for _, file := range files {
 		filenamesDesired = append(filenamesDesired, file.Name())
 	}
 	return filenamesDesired
 }
-
 
 // Executes ETL pipeline for a raw data file, and stores results appropriately
 func executePipeline(filename string) {
@@ -936,10 +883,10 @@ func executePipeline(filename string) {
 	sliceLatestForm = attachRankingToLatestForm(sliceLatestForm)
 	// Save results
 	saveAbsToCsv(sliceAbsStats, pathResultsFolder + "/" + filenameWithoutExt + " - Teams - Absolute Stats.csv")
-	saveNormToCsv(sliceNormStats, pathResultsFolder +  "/" + filenameWithoutExt + " - Teams - Normalized Stats.csv")
-	saveLatestFormToCsv(sliceLatestForm, pathResultsFolder +  "/" + filenameWithoutExt + " - Teams - Latest Form.csv")
+	saveNormToCsv(sliceNormStats, pathResultsFolder + "/" + filenameWithoutExt + " - Teams - Normalized Stats.csv")
+	saveLatestFormToCsv(sliceLatestForm, pathResultsFolder + "/" + filenameWithoutExt + " - Teams - Latest Form.csv")
 	fmt.Println("Computed teams' stats for '" + filename + "'")
-	
+
 	// ########## Individuals' stats ##########
 	if filenameContains2v2(filename) && isValid2v2Naming(rawRecords) {
 		sliceAbsStatsSolo := getAbsoluteStatsByIndividual(rawRecords, sliceAbsStats)
@@ -953,9 +900,9 @@ func executePipeline(filename string) {
 		sliceLatestFormSolo = sortLatestFormByMetric(sliceLatestFormSolo)
 		sliceLatestFormSolo = attachRankingToLatestForm(sliceLatestFormSolo)
 		// Save results
-		saveAbsToCsv(sliceAbsStatsSolo, pathResultsFolder +  "/" + filenameWithoutExt + " - Individuals - Absolute Stats.csv")
-		saveNormToCsv(sliceNormStatsSolo, pathResultsFolder +  "/" + filenameWithoutExt + " - Individuals - Normalized Stats.csv")
-		saveLatestFormToCsv(sliceLatestFormSolo, pathResultsFolder +  "/" + filenameWithoutExt + " - Individuals - Latest Form.csv")
+		saveAbsToCsv(sliceAbsStatsSolo, pathResultsFolder + "/" + filenameWithoutExt + " - Individuals - Absolute Stats.csv")
+		saveNormToCsv(sliceNormStatsSolo, pathResultsFolder + "/" + filenameWithoutExt + " - Individuals - Normalized Stats.csv")
+		saveLatestFormToCsv(sliceLatestFormSolo, pathResultsFolder + "/" + filenameWithoutExt + " - Individuals - Latest Form.csv")
 		fmt.Println("Computed individuals' stats for '" + filename + "'")
 	}
 	if filenameContains2v2(filename) {
@@ -965,7 +912,6 @@ func executePipeline(filename string) {
 		}
 	}
 }
-
 
 func main() {
 	filenames := getListOfDataFilenames()
